@@ -3,6 +3,7 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+var partials = require('express-partials');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
@@ -28,12 +29,19 @@ var formsRouter = require('./routes/forms');
 var insertRouter = require('./routes/insert');
 /* ---------------------------- */
 
+/* --- V6: Modify Database  --- */
+var testRouter = require('./routes/test');
+/* ---------------------------- */
+
+
 var app = express();
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
+app.use(partials());
+app.use(require('express-blocks'));
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -58,6 +66,10 @@ app.use('/select', selectRouter);
 
 /* --- V5: Adding Forms     --- */
 app.use('/forms', formsRouter);
+/* ---------------------------- */
+
+/* --- V5: Adding Forms     --- */
+app.use('/test', testRouter);
 /* ---------------------------- */
 
 /* --- V6: Modify Database  --- */
