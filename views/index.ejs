@@ -14,8 +14,19 @@
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k" crossorigin="anonymous"></script>
   </head>
   <body>
-    <h1>CS2102 Starter Guide</h1>
-    <p>Welcome to CS2102 Starter Guide</p><br />
-		<p>by: Adi Yoga S. Prabawa
+  	<% if(message){ %>
+	<h1><%= message %></h1>
+	<a href="/login">try again</a>
+	<% } else { %>
+	<h1>some name</h1>
+    <p>Welcome to app name</p><br/>
+	<%if (isLoggedIn) { %>
+	<a href = "/dashboard">Hi, you're logged in, shift to users </a> <br/>
+	<% } else { %>
+	<a href="/login">log in</a> <br/>
+	<a href="/register">register</a>
+	<% } %>
+	<% } %>
+    
   </body>
 </html>
