@@ -3,10 +3,47 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
-var partials = require('express-partials');
+var session = require('express-session');
+var flash = require('express-flash');
+var passport = require('passport');
+var localStrategy = require('passport-local').Strategy;
+
+var app = express();
+
+app.use(session({
+	secret: 'zhoulijie', cookie: { maxAge: 1000*60*60*12 },
+	resave: true,
+	saveUninitialized: true}));
+app.use(passport.initialize());
+app.use(passport.session());
+app.use(flash());
+
+passport.use('local', new localStrategy(
+    function(username, password, done) {
+        var user = {
+            id: '1',
+            username: 'admin',
+            password: '123456'
+        };
+
+        if (username !== user.username || password !== user.password) {
+            return done(null, false, { message: 'Your password or username is incorrect' });
+        }
+
+        return done(null, user);
+    }
+));
+
+passport.serializeUser(function (user, done) {
+    done(null, user);
+});
+
+passport.deserializeUser(function (user, done) {
+    done(null, user);
+});
 
 var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
+var dashboardRouter = require('./routes/dashboard');
 
 /* --- V2: Adding Web Pages --- */
 var aboutRouter = require('./routes/about');
@@ -29,19 +66,11 @@ var formsRouter = require('./routes/forms');
 var insertRouter = require('./routes/insert');
 /* ---------------------------- */
 
-/* --- V6: Modify Database  --- */
-var testRouter = require('./routes/test');
-/* ---------------------------- */
-
-
-var app = express();
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
-app.use(partials());
-app.use(require('express-blocks'));
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -49,7 +78,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
-app.use('/users', usersRouter);
+app.use('/dashboard', dashboardRouter);
 
 /* --- V2: Adding Web Pages --- */
 app.use('/about', aboutRouter);
@@ -66,10 +95,6 @@ app.use('/select', selectRouter);
 
 /* --- V5: Adding Forms     --- */
 app.use('/forms', formsRouter);
-/* ---------------------------- */
-
-/* --- V5: Adding Forms     --- */
-app.use('/test', testRouter);
 /* ---------------------------- */
 
 /* --- V6: Modify Database  --- */
