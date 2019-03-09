@@ -209,15 +209,15 @@ a img{
 
 .android-screen-section {
   position: relative;
-  padding-top: 60px;
+  padding-top: 100px;
   padding-bottom: 80px;
 }
 
 .android-screens {
   text-align: right;
-  width: 100%;
-  white-space: nowrap;
-  overflow-x: auto;
+  width: 40%;
+/*  white-space: nowrap;
+  overflow-x: auto;*/
 }
 
 .android-screen {
@@ -233,7 +233,7 @@ a img{
 .android-image-link {
   text-decoration: none;
 }
-
+/*
 .android-wear {
   display: inline-block;
   width: 160px;
@@ -244,8 +244,8 @@ a img{
     width: 40%;
     z-index: 1;
   }
-
-
+*/
+/*
 .android-phone {
   display: inline-block;
   width: 64px;
@@ -273,17 +273,19 @@ a img{
     display: block;
     z-index: 2;
   }
-
+*/
 
 .android-tv {
+  position: relative;
+  padding-top: 50px;
   display: inline-block;
   width: 300px;
-  margin-right: 80px;
+  margin-right: 0px;
 }
 
   .android-tv .android-screen-image {
-    width: 100%;
-    z-index: 1;
+    width: 300%;
+    z-index: 0;
   }
 
 
@@ -359,6 +361,7 @@ a img{
 
 .android-customized-section {
   text-align: center;
+  background-color: #f7f7f7;
 }
 
 .android-customized-section-text {
