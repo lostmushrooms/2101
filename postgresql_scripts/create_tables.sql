@@ -33,8 +33,11 @@ CREATE TABLE Caretakers (
 );	
 
 CREATE TABLE PetSpecies (
-	id INTEGER, --uniquely identifies a species. i.e. id = 1 refers to Dog
-	species VARCHAR(50) UNIQUE NOT NULL,
+	id INTEGER, --uniquely identifies a species. i.e. id = 1 refers to West Highland White Terrier, 
+	--2 refers to Husky, 3 refers to Abyssinian cat
+	species VARCHAR(50) NOT NULL,
+    breed VARCHAR(100) NOT NULL,
+	UNIQUE(species, breed),
 	PRIMARY KEY (id)
 );
 
@@ -44,16 +47,16 @@ CREATE TABLE WeightClasses (
 	PRIMARY KEY (id)
 );	
 
+
 CREATE TABLE Pets (
 	pid INTEGER, --weak unique id of pet
 	owner_username VARCHAR(50), --username of owner
 	pname VARCHAR(50), --non-unique name of pet
-	species_id INTEGER, --species of animal e.g. 1 refers to Dog
-	breed VARCHAR(30), --breed of animal e.g. 'French Bulldog'. Assumed to make sense with species_id attribute.
+	pet_type_id INTEGER, --species of animal e.g. 1 refers to Dog
 	weight_class_id INTEGER, --refers to weight class e.g. 1 refers to <2.5kg
 	PRIMARY KEY (pid, owner_username),
 	FOREIGN KEY (owner_username) REFERENCES Users (username) ON DELETE CASCADE,
-	FOREIGN KEY (species_id) REFERENCES PetSpecies(id) ON UPDATE CASCADE ON DELETE SET NULL,
+	FOREIGN KEY (type_id) REFERENCES PetSpecies(id) ON UPDATE CASCADE ON DELETE SET NULL,
 	FOREIGN KEY (weight_class_id) REFERENCES WeightClasses(id) ON UPDATE CASCADE ON DELETE SET NULL
 );
 	
@@ -62,17 +65,35 @@ CREATE TABLE Chats (
 	to_user VARCHAR(50),
 	time TIMESTAMP,
 	PRIMARY KEY (from_user, to_user, time),
-	FOREIGN KEY (from_user) REFERENCES Users (username) ON DELETE CASCADE,
-	FOREIGN KEY (to_user) REFERENCES Users (username) ON DELETE CASCADE
+	FOREIGN KEY (from_user) REFERENCES Users (username) ON UPDATE CASCADE ON DELETE CASCADE,
+	FOREIGN KEY (to_user) REFERENCES Users (username) ON UPDATE CASCADE ON DELETE CASCADE
 );
 	
-/* not done
+
 CREATE TABLE Availability (
 	username VARCHAR(50), --username of caretaker who advertised this availability
 	start_date DATE,
 	end_date DATE,
-	
+	PRIMARY KEY (username, start_date, end_date),
+	FOREIGN KEY (username) REFERENCES Caretakers(username) ON UPDATE CASCADE ON DELETE CASCADE
+
 );
+
+CREATE TABLE ServiceType (
+	id INTEGER, 
+	name VARCHAR(100)
+	PRIMARY KEY (id)
+)
+
+CREATE TABLE Service (
+    type_of_service VARCHAR(50),
+	pet_type_id INTEGER, --species of animal e.g. 1 refers to Dog
+	weight_class_id INTEGER,
+	FOREIGN KEY (type_of_service) REFERENCES ServiceType,
+	FOREIGN KEY (breed) REFERENCES PetSpecies,
+	FOREIGN KEY (weight_class) REFERENCES WeightClasses,
+    PRIMARY KEY (type_of_service, pet_type_id, breed, weight_class_id)
+)
 */
 
 	
