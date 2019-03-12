@@ -20,9 +20,13 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="description" content="Introducing Lollipop, a sweet new take on Android.">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
     <title>PawPal</title>
+
+    <!-- JavaScripts -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k" crossorigin="anonymous"></script>
 
     <!-- Page styles -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:regular,bold,italic,thin,light,bolditalic,black,medium&amp;lang=en">
@@ -64,8 +68,8 @@
           <!-- Navigation -->
           <div class="android-navigation-container">
             <nav class="android-navigation mdl-navigation">
-              <a class="mdl-navigation__link mdl-typography--text-uppercase" href="">Find a Caretaker</a>
-              <a class="mdl-navigation__link mdl-typography--text-uppercase" href="">Become a Caretaker</a>
+              <a class="mdl-navigation__link mdl-typography--text-uppercase" href="/searchCaretaker">Find a Caretaker</a>
+              <a class="mdl-navigation__link mdl-typography--text-uppercase" href="/beCaretaker">Become a Caretaker</a>
             </nav>
           </div>
           <span class="android-mobile-title mdl-layout-title">
@@ -75,8 +79,8 @@
             <i class="material-icons">more_vert</i>
           </button>
           <ul class="mdl-menu mdl-js-menu mdl-menu--bottom-right mdl-js-ripple-effect" for="more-button">
-            <li class="mdl-menu__item">Sign up</li>
-            <li class="mdl-menu__item">Log in</li>
+            <a href="/register"> <li class="mdl-menu__item">Sign up</li> </a>
+            <a href="/login"> <li class="mdl-menu__item">Log in</li> </a>
           </ul>
         </div>
       </div>
@@ -86,7 +90,7 @@
           <img class="android-logo-image" src="images/logo-white.png">
         </span>
         <nav class="mdl-navigation">
-          <a class="mdl-navigation__link" href="">Profile</a>
+          <a class="mdl-navigation__link" href="profile">Profile</a>
           <a class="mdl-navigation__link" href="">Pets</a>
           <a class="mdl-navigation__link" href="">Inbox</a>
           <a class="mdl-navigation__link" href="">Caretaker Profile</a>
@@ -117,13 +121,17 @@
           <div class="android-customized-section-text">
             <div class="mdl-typography--font-light mdl-typography--display-1-color-contrast">Start now...<br> &nbsp; </div>
                 <div class= "row">
-                  <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
-                    Log In
-                  </button>
+                  <a href="/login">
+                    <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+                      Log In
+                    </button>
+                  </a>
                   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                  <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
-                    Register
-                  </button>
+                  <a href="/register">
+                    <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" href="/register">
+                      Register
+                    </button>
+                  </a>
                   <br> &nbsp; <br> &nbsp; 
                 </div>
           </div>

@@ -16,6 +16,24 @@ router.get('/login',function (req, res, next) {
     })
 });
 
+router.get('/searchCaretaker', function (req, res, next) {
+    res.render('searchCaretaker', {
+        title : 'Search Caretaker'
+    })
+});
+
+router.get('/beCaretaker', function (req, res, next) {
+    res.render('beCaretaker', {
+        title : 'Be A Caretaker'
+    })
+});
+
+router.get('/profile', function (req, res, next) {
+    res.render('profile', {
+        title : 'My Profile'
+    })
+});
+
 router.post('/login',
     passport.authenticate('local',{
         successRedirect: '/dashboard',
