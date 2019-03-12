@@ -27,19 +27,32 @@ CREATE TABLE Owners (
 );
 
 CREATE TABLE Caretakers (
-	username VARCHAR(50),
+	username VARCHAR(50),    
+	type_of_service VARCHAR(50),
+	pet_type_id INTEGER, --species of animal e.g. 1 refers to Dog
+	weight_class_id INTEGER,
+	FOREIGN KEY (type_of_service) REFERENCES ServiceType,
+	FOREIGN KEY (breed) REFERENCES PetSpecies,
+	FOREIGN KEY (weight_class) REFERENCES WeightClasses,
+    PRIMARY KEY (type_of_service, pet_type_id, breed, weight_class_id)
 	PRIMARY KEY (username),
 	FOREIGN KEY (username) REFERENCES Users (username) ON DELETE CASCADE
 );	
 
+
 CREATE TABLE PetSpecies (
-	id INTEGER, --uniquely identifies a species. i.e. id = 1 refers to West Highland White Terrier, 
-	--2 refers to Husky, 3 refers to Abyssinian cat
+	id INTEGER, --uniquely identifies a species. i.e. id = 1 refers to dog
 	species VARCHAR(50) NOT NULL,
     breed VARCHAR(100) NOT NULL,
 	UNIQUE(species, breed),
 	PRIMARY KEY (id)
 );
+
+CREATE TABLE PetBreed (
+	id INTEGER, 
+	breed VARCHAR(100), 
+	PRIMARY KEY (id)
+)
 
 CREATE TABLE WeightClasses (
 	id INTEGER, --uniquely identifies a weight class. i.e. id = 1 refers to <2.5kg
@@ -52,11 +65,13 @@ CREATE TABLE Pets (
 	pid INTEGER, --weak unique id of pet
 	owner_username VARCHAR(50), --username of owner
 	pname VARCHAR(50), --non-unique name of pet
-	pet_type_id INTEGER, --species of animal e.g. 1 refers to Dog
+	pet_sid INTEGER, --species of animal e.g. 1 refers to Dog
+	pet_bid INTEGER, --breed of pet
 	weight_class_id INTEGER, --refers to weight class e.g. 1 refers to <2.5kg
 	PRIMARY KEY (pid, owner_username),
 	FOREIGN KEY (owner_username) REFERENCES Users (username) ON DELETE CASCADE,
-	FOREIGN KEY (type_id) REFERENCES PetSpecies(id) ON UPDATE CASCADE ON DELETE SET NULL,
+	FOREIGN KEY (pet_sid) REFERENCES PetSpecies(id) ON UPDATE CASCADE,
+	FOREIGN KEY (pet_bid) REFERENCES PetBreed ON UPDATE CASCADE,
 	FOREIGN KEY (weight_class_id) REFERENCES WeightClasses(id) ON UPDATE CASCADE ON DELETE SET NULL
 );
 	
@@ -81,19 +96,47 @@ CREATE TABLE Availability (
 
 CREATE TABLE ServiceType (
 	id INTEGER, 
-	name VARCHAR(100)
+	name TEXT
 	PRIMARY KEY (id)
 )
 
-CREATE TABLE Service (
-    type_of_service VARCHAR(50),
-	pet_type_id INTEGER, --species of animal e.g. 1 refers to Dog
-	weight_class_id INTEGER,
-	FOREIGN KEY (type_of_service) REFERENCES ServiceType,
-	FOREIGN KEY (breed) REFERENCES PetSpecies,
-	FOREIGN KEY (weight_class) REFERENCES WeightClasses,
-    PRIMARY KEY (type_of_service, pet_type_id, breed, weight_class_id)
+/**
+Services offered by care taker
+**/
+CREATE TABLE OfferedCares (
+    ctname VARCHAR(50),
+	pet_sid INTEGER,
+	pet_wid INTEGER,
+	FOREIGN KEY (ctname) REFERENCES CareTakers(username) ON UPDATE CASCADE ON DELETE CASCADE,
+	FOREIGN KEY (pet_sid) REFERENCES PetSpecies(id) ON UPDATE CASCADE,
+	FOREIGN KEY (pet_wid) REFERENCES WeightClasses(id)
 )
+
+CREATE TABLE Bid (
+	oname VARCHAR(50),
+    cname VARCHAR(50),
+	start_date DATE,
+	end_date DATE,
+	FOREIGN KEY (oname) REFERENCES Owners(username) ON UPDATE CASCADE,
+	FOREIGN KEY (cname) REFERENCES CareTakers(username) ON UPDATE CASCADE,
+	PRIMARY KEY (oname, cname, start_date, end_date)
+)
+/**
+Accepted bidding.
+**/
+CREATE TABLE Transaction (
+    
+)
+
+/*
+Not completed yet 
 */
+CREATE TABLE Rating (
+    reviewer VARCHAR(50),  
+    reviewee VARCHAR(50),
+	stars numeric,
+	comment text
+)
+
 
 	
