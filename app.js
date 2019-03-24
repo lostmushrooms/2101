@@ -18,32 +18,10 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.use(flash());
 
-passport.use('local', new localStrategy(
-    function(username, password, done) {
-        var user = {
-            id: '1',
-            username: 'admin',
-            password: '123456'
-        };
-
-        if (username !== user.username || password !== user.password) {
-            return done(null, false, { message: 'Your password or username is incorrect' });
-        }
-
-        return done(null, user);
-    }
-));
-
-passport.serializeUser(function (user, done) {
-    done(null, user);
-});
-
-passport.deserializeUser(function (user, done) {
-    done(null, user);
-});
-
 var indexRouter = require('./routes/index');
 var dashboardRouter = require('./routes/dashboard');
+var registerRouter = require('./routes/register');
+var loginRouter = require('./routes/login');
 
 /* --- V2: Adding Web Pages --- */
 var aboutRouter = require('./routes/about');
@@ -97,6 +75,9 @@ app.use('/select', selectRouter);
 app.use('/forms', formsRouter);
 /* ---------------------------- */
 
+app.use('/login', loginRouter);
+app.use('/register', registerRouter);
+
 /* --- V6: Modify Database  --- */
 var bodyParser = require('body-parser');
 app.use(bodyParser.json());
@@ -118,6 +99,12 @@ app.use(function(err, req, res, next) {
   // render the error page
   res.status(err.status || 500);
   res.render('error');
+});
+
+app.get('/logout', function(req, res){
+    req.session.destroy();
+    req.logout();
+    res.redirect('/index');
 });
 
 module.exports = app;

@@ -10,12 +10,6 @@ router.get('/', function(req, res, next) {
     });
 });
 
-router.get('/login',function (req, res, next) {
-    res.render('login', {
-        title : 'Login Page'
-    })
-});
-
 router.get('/searchCaretaker', function (req, res, next) {
     res.render('searchCaretaker', {
         title : 'Search Caretaker'
@@ -34,25 +28,12 @@ router.get('/profile', function (req, res, next) {
     })
 });
 
-router.post('/login',
-    passport.authenticate('local',{
-        successRedirect: '/dashboard',
-        failureRedirect: '/',
-        failureFlash : true
-    })
-);
-
-router.get('/register',function (req, res, next) {
-    res.render('register', {
-        title : 'Register Page'
-    })
-});
 
 router.all('/dashboard', isLoggedIn);
 router.get('/dashboard', function(req, res, next) {
    res.render('dashboard',{
         title : 'User List',
-        username : req.user.username
+        username : req.session.email
     })
 });
 
@@ -62,7 +43,7 @@ router.get('/logout', function(req, res) {
 });
 
 function isLoggedIn(req, res, next) {
-    if (req.isAuthenticated()){
+    if (req.session.email){
         return next();
     }
     res.redirect('/');
