@@ -18,11 +18,10 @@ DROP TABLE IF EXISTS Reviews CASCADE;
 --Users table, add more attributes if necessary
 CREATE TABLE Users (
 	username VARCHAR(50), --increase if necessary
-	name VARCHAR(50), --non-unique name of user
 	email VARCHAR(100) UNIQUE NOT NULL , --increase if necessary
 	password VARCHAR(20) NOT NULL,
 	phoneNumber VARCHAR(20),
-	PRIMARY KEY (username)
+	PRIMARY KEY (email)
 );
 	
 CREATE TABLE Owners (
