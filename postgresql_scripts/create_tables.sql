@@ -20,8 +20,8 @@ CREATE TABLE Users (
 	username VARCHAR(50), --increase if necessary
 	email VARCHAR(100) UNIQUE NOT NULL , --increase if necessary
 	password VARCHAR(20) NOT NULL,
-	phoneNumber VARCHAR(20),
-	PRIMARY KEY (email)
+	phone_number VARCHAR(20),
+	PRIMARY KEY (username)
 );
 	
 CREATE TABLE Owners (
@@ -106,36 +106,46 @@ CREATE TABLE OfferedCares (
 );
 
 CREATE TABLE Bids (
-	id INTEGER,
+	id VARCHAR(50),
 	owner_username VARCHAR(50),
     availability_id INTEGER, --we can obtain information about caretaker from here
 	start_date DATE, --check that this start date is after the Availability's start date
 	end_date DATE, --check that this end date if before the Availability's end date
+	price NUMERIC(10,2),
 	FOREIGN KEY (owner_username) REFERENCES Owners(username) ON DELETE CASCADE,
 	FOREIGN KEY (availability_id) REFERENCES Availabilities(id) ON DELETE CASCADE,
 	PRIMARY KEY (id)
 );
 
 CREATE TABLE AcceptedBids (
+	id VARCHAR(50),
+    owner_username VARCHAR(50),
+    availability_id INTEGER, --we can obtain information about caretaker from here
+	start_date DATE, --check that this start date is after the Availability's start date
+	end_date DATE, --check that this end date if before the Availability's end date
+	price NUMERIC(10,2),
+	FOREIGN KEY (owner_username) REFERENCES Owners(username) ON DELETE CASCADE,
+	FOREIGN KEY (availability_id) REFERENCES Availabilities(id) ON DELETE CASCADE,
+	PRIMARY KEY (id)
 );
 
 /*
  * Not complete yet
  */
 CREATE TABLE Payments (
-    bid_id INTEGER,
+    abid_id VARCHAR(50),
     price NUMERIC(10,2), --10 digits, 2 of which are decimal
-    FOREIGN KEY (bid_id) REFERENCES AcceptedBids(id) ON DELETE CASCADE
+    FOREIGN KEY (abid_id) REFERENCES AcceptedBids(id) ON DELETE CASCADE
 );
 
 CREATE TABLE Reviews (
-    bid_id INTEGER,
+    abid_id VARCHAR(50),
     owner_rating INTEGER, --rating that the caretaker gave the owner from 1 to 5
 	caretaker_rating INTEGER, --rating that the owner gave the caretaker from 1 to 5
 	owner_comments TEXT, --comments that the caretaker gave the owner
 	caretaker_comments TEXT, --comments that the owner gave the caretaker
-	FOREIGN KEY (bid_id) REFERENCES AcceptedBids(id) ON DELETE CASCADE,
-	PRIMARY KEY (bid_id)
+	FOREIGN KEY (abid_id) REFERENCES AcceptedBids(id) ON DELETE CASCADE,
+	PRIMARY KEY (abid_id)
 );
 
 
