@@ -28,22 +28,13 @@ router.get('/profile', function (req, res, next) {
     })
 });
 
-
-router.all('/dashboard', isLoggedIn);
-router.get('/dashboard', function(req, res, next) {
-   res.render('dashboard',{
-        title : 'User List',
-        username : req.session.email
-    })
-});
-
 router.get('/logout', function(req, res) {
     req.logout();
     res.redirect('/');
 });
 
 function isLoggedIn(req, res, next) {
-    if (req.session.email){
+    if (req.session.username){
         return next();
     }
     res.redirect('/');

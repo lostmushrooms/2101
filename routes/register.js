@@ -16,7 +16,7 @@ var sql_query = 'INSERT INTO Users VALUES';
 router.get('/',function (req, res, next) {
     res.render('register', {
         title : 'Register Page',
-        email : 'Email'
+        message : ''
     })
 });
 
@@ -36,11 +36,11 @@ router.post('/', function(req, res, next) {
 		if (err) {
 			 res.render('register', {
         	title : 'Register Page',
-        	email : 'Email already existed, please use another email for registration'
-   		})
-			 return
+        	message : 'Email or User name already existed, please use another one for registration'
+   			})
+			return;
         }
-		res.redirect('/dashboard');
+		res.redirect('/index');
 	});
 });
 
