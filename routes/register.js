@@ -40,7 +40,7 @@ router.post('/', function(req, res, next) {
    			})
 			return;
         }
-		res.redirect('/index');
+		res.redirect('/');
 	});
 });
 
