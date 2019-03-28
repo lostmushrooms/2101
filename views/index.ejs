@@ -47,58 +47,10 @@
   </head>
 
   <body>
-
     <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
+      <%- include navbar.ejs %>
 
-      <div class="android-header mdl-layout__header mdl-layout__header--waterfall">
-        <div class="mdl-layout__header-row">
-          <span class="android-title mdl-layout-title">
-            <img class="android-logo-image" src="images/logo.png">
-          </span>
-          <!-- Add spacer, to align navigation to the right in desktop -->
-          <div class="android-header-spacer mdl-layout-spacer"></div>
-          <div class="android-search-box mdl-textfield mdl-js-textfield mdl-textfield--expandable mdl-textfield--floating-label mdl-textfield--align-right mdl-textfield--full-width">
-            <label class="mdl-button mdl-js-button mdl-button--icon" for="search-field">
-              <i class="material-icons">search</i>
-            </label>
-            <div class="mdl-textfield__expandable-holder">
-              <input class="mdl-textfield__input" type="text" id="search-field">
-            </div>
-          </div>
-          <!-- Navigation -->
-          <div class="android-navigation-container">
-            <nav class="android-navigation mdl-navigation">
-              <a class="mdl-navigation__link mdl-typography--text-uppercase" href="/searchCaretaker">Find a Caretaker</a>
-              <a class="mdl-navigation__link mdl-typography--text-uppercase" href="/beCaretaker">Become a Caretaker</a>
-            </nav>
-          </div>
-          <span class="android-mobile-title mdl-layout-title">
-            <img class="android-logo-image" src="images/logo.png">
-          </span>
-          <button class="android-more-button mdl-button mdl-js-button mdl-button--icon mdl-js-ripple-effect" id="more-button">
-            <i class="material-icons">more_vert</i>
-          </button>
-          <ul class="mdl-menu mdl-js-menu mdl-menu--bottom-right mdl-js-ripple-effect" for="more-button">
-            <a href="/register"> <li class="mdl-menu__item">Sign up</li> </a>
-            <a href="/login"> <li class="mdl-menu__item">Log in</li> </a>
-          </ul>
-        </div>
-      </div>
-
-      <div class="android-drawer mdl-layout__drawer">
-        <span class="mdl-layout-title">
-          <img class="android-logo-image" src="images/logo-white.png">
-        </span>
-        <nav class="mdl-navigation">
-          <a class="mdl-navigation__link" href="profile">Profile</a>
-          <a class="mdl-navigation__link" href="">Pets</a>
-          <a class="mdl-navigation__link" href="">Inbox</a>
-          <a class="mdl-navigation__link" href="">Caretaker Profile</a>
-          <a class="mdl-navigation__link" href="">Logout</a>
-          <div class="android-drawer-separator"></div>
-          <a class="mdl-navigation__link" href="">Contact Us</a>
-        </nav>
-      </div>
+      <%- include sidebar.ejs %>
 
       <div class="android-content mdl-layout__content">
         <a name="top"></a>
