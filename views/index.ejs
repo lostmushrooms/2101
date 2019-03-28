@@ -47,25 +47,10 @@
   </head>
 
   <body>
-    <%- include navbar.ejs %>
     <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
+      <%- include navbar.ejs %>
 
-      <div class="android-drawer mdl-layout__drawer">
-        <span class="mdl-layout-title">
-          <img class="a
-
-          <%- include navbar.ejs %>droid-logo-image" src="images/logo-white.png">
-        </span>
-        <nav class="mdl-navigation">
-          <a class="mdl-navigation__link" href="profile">Profile</a>
-          <a class="mdl-navigation__link" href="">Pets</a>
-          <a class="mdl-navigation__link" href="">Inbox</a>
-          <a class="mdl-navigation__link" href="">Caretaker Profile</a>
-          <a class="mdl-navigation__link" href="">Logout</a>
-          <div class="android-drawer-separator"></div>
-          <a class="mdl-navigation__link" href="">Contact Us</a>
-        </nav>
-      </div>
+      <%- include sidebar.ejs %>
 
       <div class="android-content mdl-layout__content">
         <a name="top"></a>
