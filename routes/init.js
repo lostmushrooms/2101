@@ -63,7 +63,11 @@ function msg(req, fld, pass, fail) {
 
 // GET
 function index(req, res, next) {
-	res.render('index', { page: 'index', auth: false });
+	if(!req.isAuthenticated()) {
+		res.render('index', { page: '', auth: false });
+	} else {
+		basic(req, res, 'index', { page: '', auth: true });
+	}
 }
 
 function register(req, res, next) {

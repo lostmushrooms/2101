@@ -50,7 +50,9 @@
     <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
       <%- include navbar.ejs %>
 
+      <% if(auth) { %>
       <%- include sidebar.ejs %>
+      <% } %>
 
       <div class="android-content mdl-layout__content">
         <a name="top"></a>
