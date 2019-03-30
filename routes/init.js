@@ -17,9 +17,9 @@ const salt  = bcrypt.genSaltSync(round);
 
 function initRouter(app) {
 	/* GET */
-	app.get('/'      , index );
 	
 	/* PROTECTED GET */
+	app.get('/'      , passport.antiMiddleware(), index );
 	app.get('/login' , passport.antiMiddleware(), login);
 	app.get('/register' , passport.antiMiddleware(), register);
 	app.get('/dashboard' , passport.authMiddleware(), dashboard);
@@ -63,11 +63,7 @@ function msg(req, fld, pass, fail) {
 
 // GET
 function index(req, res, next) {
-	if(!req.isAuthenticated()) {
-		res.render('index', { page: '', auth: false });
-	} else {
-		basic(req, res, 'index', { page: '', auth: true });
-	}
+	res.render('index', { page: 'index', auth: false });
 }
 
 function register(req, res, next) {
@@ -87,19 +83,38 @@ function reg_user(req, res, next) {
 	var password  = bcrypt.hashSync(req.body.password, salt);
 	var email = req.body.email;
 	var phoneNumber  = req.body.phoneNumber;
+	var userType = req.body.userType;
 	pool.query(sql_query.query.add_user, [username,password,email,phoneNumber], (err, data) => {
 		if(err) {
 			console.error("Error in adding user", err);
-			res.redirect('/register');
+			res.redirect('/register?reg=fail');
 		} else {
+			if (userType = "careTaker") {
+				pool.query(sql_query.query.add_caretaker, [username], (err, data) => {
+					if(err) {
+						console.error("Error in adding user", err);
+						res.redirect('/register?reg=fail');
+						return;
+					}
+				});
+			} else {
+				pool.query(sql_query.query.add_owner, [username], (err, data) => {
+					if(err) {
+						console.error("Error in adding user", err);
+						res.redirect('/register?reg=fail');
+						return;
+					}
+				});
+			}
 			req.login({
 				username    : username,
 				passwordHash: password,
 				email   : email,
 				phone_number    : phoneNumber,
+				userType: userType,
 			}, function(err) {
 				if(err) {
-					return res.redirect('/register');
+					return res.redirect('/register?reg=fail');
 				} else {
 					return res.redirect('/dashboard');
 				}
