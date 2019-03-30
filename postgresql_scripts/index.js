@@ -4,6 +4,8 @@ sql.query = {
 	// Counting & Average
 	
 	// Information
+	page_lims: 'SELECT * FROM Availabilities ORDER BY start_date ASC LIMIT 10 OFFSET $1',
+	ctx_posts: 'SELECT COUNT(*) FROM Availabilities',
 	
 	// Insertion
 	add_user: 'INSERT INTO Users (username, password, email, phone_number) VALUES ($1,$2,$3,$4)',

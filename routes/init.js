@@ -24,6 +24,7 @@ function initRouter(app) {
 	app.get('/register' , passport.antiMiddleware(), register);
 	app.get('/dashboard' , passport.authMiddleware(), dashboard);
 	app.get('/makePost' , passport.authMiddleware(), makePost);
+	app.get('/viewPost' , passport.authMiddleware(), viewPost);
 	
 	/* PROTECTED POST */
 	app.post('/register'   , passport.antiMiddleware(), reg_user);
@@ -85,6 +86,35 @@ function makePost(req, res, next) {
 	}
 }
 
+function viewPost(req, res, next) {
+	var ctx = 0, idx = 0, tbl, total;
+	if(Object.keys(req.query).length > 0 && req.query.p) {
+		idx = req.query.p-1;
+	}
+	pool.query(sql_query.query.page_lims, [idx*10], (err, data) => {
+		if(err || !data.rows || data.rows.length == 0) {
+			tbl = [];
+		} else {
+			tbl = data.rows;
+		}
+		pool.query(sql_query.query.ctx_posts, (err, data) => {
+			if(err || !data.rows || data.rows.length == 0) {
+				ctx = 0;
+			} else {
+				ctx = data.rows[0].count;
+			}
+			total = ctx%10 == 0 ? ctx/10 : (ctx - (ctx%10))/10 + 1;
+			console.log(idx*10, idx*10+10, total);
+			if(req.user.userType != "owner") {
+				console.log(req.user);
+				res.redirect('/dashboard');
+			} else {
+				basic(req, res, 'viewPost', { page: 'viewPost', auth: true, tbl: tbl, ctx: ctx, p: idx+1, t: total });
+			}
+		});
+	});
+}
+
 function login(req, res, next) {
 	res.render('login', { page: 'login', auth: false });
 }
@@ -135,8 +165,8 @@ function reg_user(req, res, next) {
 }
 
 function make_post(req, res, next) {
-	var start  = req.body.datetimepicker6;
-	var end  = req.body.datetimepicker7;
+	var start  = req.body.datepicker6;
+	var end  = req.body.datepicker7;
 	var username = req.user.username;
 	console.log(req.body);
 	pool.query(sql_query.query.add_availability, [username,start,end], (err, data) => {
