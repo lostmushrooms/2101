@@ -51,10 +51,11 @@ function findUser (username, callback) {
             phone_number: data.rows[0].phone_number,
             userType: user.userType
           });
+        } else {
+          return callback(null);
         }
       });
     }
-    return callback(null);
   });
 }
 
