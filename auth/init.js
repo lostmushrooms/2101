@@ -54,6 +54,7 @@ function findUser (username, callback) {
         }
       });
     }
+    return callback(null);
   });
 }
 
