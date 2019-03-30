@@ -12,6 +12,8 @@ sql.query = {
 
 	// Login
 	userpass: 'SELECT * FROM Users WHERE username=$1',
+	ownerpass: 'SELECT * FROM Owners WHERE username=$1',
+	caretakerpass: 'SELECT * FROM Caretakers WHERE username=$1',
 	
 	// Update
 	
