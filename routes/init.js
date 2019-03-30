@@ -27,6 +27,7 @@ function initRouter(app) {
 	
 	/* PROTECTED POST */
 	app.post('/register'   , passport.antiMiddleware(), reg_user);
+	app.post('/makePost'   , passport.authMiddleware(), make_post);
 
 	/* LOGIN */
 	app.post('/login', passport.authenticate('local', {
@@ -77,7 +78,6 @@ function dashboard(req, res, next) {
 }
 
 function makePost(req, res, next) {
-	console.log(req.user);
 	if (req.user.userType == "careTaker") {
 		res.render('makePost', { page: 'makePost', auth: true });
 	} else {
@@ -130,6 +130,21 @@ function reg_user(req, res, next) {
 					return res.redirect('/dashboard');
 				}
 			});
+		}
+	});
+}
+
+function make_post(req, res, next) {
+	var start  = req.body.datetimepicker6;
+	var end  = req.body.datetimepicker7;
+	var username = req.user.username;
+	console.log(req.body);
+	pool.query(sql_query.query.add_availability, [username,start,end], (err, data) => {
+		if(err) {
+			console.error("Error in adding user", err);
+			res.redirect('/makePost?post=fail');
+		} else {
+			res.redirect('/dashboard');
 		}
 	});
 }
