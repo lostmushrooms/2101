@@ -23,6 +23,7 @@ function initRouter(app) {
 	app.get('/login' , passport.antiMiddleware(), login);
 	app.get('/register' , passport.antiMiddleware(), register);
 	app.get('/dashboard' , passport.authMiddleware(), dashboard);
+	app.get('/makePost' , passport.authMiddleware(), makePost);
 	
 	/* PROTECTED POST */
 	app.post('/register'   , passport.antiMiddleware(), reg_user);
@@ -44,7 +45,8 @@ function basic(req, res, page, other) {
 		page: page,
 		user: req.user.username,
 		email: req.user.email,
-		phone_number : req.user.phone_number
+		phone_number : req.user.phone_number,
+		userType: req.user.userType
 	};
 	if(other) {
 		for(var fld in other) {
@@ -74,6 +76,15 @@ function dashboard(req, res, next) {
 	basic(req, res, 'dashboard', { info_msg: msg(req, 'info', 'Information updated successfully', 'Error in updating information'), pass_msg: msg(req, 'pass', 'Password updated successfully', 'Error in updating password'), auth: true });
 }
 
+function makePost(req, res, next) {
+	console.log(req.user);
+	if (req.user.userType == "careTaker") {
+		res.render('makePost', { page: 'makePost', auth: true });
+	} else {
+		res.redirect('/dashboard');
+	}
+}
+
 function login(req, res, next) {
 	res.render('login', { page: 'login', auth: false });
 }
@@ -89,7 +100,7 @@ function reg_user(req, res, next) {
 			console.error("Error in adding user", err);
 			res.redirect('/register?reg=fail');
 		} else {
-			if (userType = "careTaker") {
+			if (userType == "careTaker") {
 				pool.query(sql_query.query.add_caretaker, [username], (err, data) => {
 					if(err) {
 						console.error("Error in adding user", err);
@@ -111,7 +122,7 @@ function reg_user(req, res, next) {
 				passwordHash: password,
 				email   : email,
 				phone_number    : phoneNumber,
-				userType: userType,
+				userType: userType
 			}, function(err) {
 				if(err) {
 					return res.redirect('/register?reg=fail');

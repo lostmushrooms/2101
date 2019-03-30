@@ -25,17 +25,69 @@ function findUser (username, callback) {
 			console.error("User does not exists?");
 			return callback(null)
 		} else if(data.rows.length == 1) {
-			return callback(null, {
-				username    : data.rows[0].username,
-				passwordHash: data.rows[0].password,
-				email   : data.rows[0].email,
-				phone_number: data.rows[0].phone_number
-			});
-		} else {
-			console.error("More than one user?");
-			return callback(null);
-		}
-	});
+      findCareTaker(username, (err, user) => {
+        if (err) {
+          return done(err);
+        }
+        if (user) {
+          return callback(null, {
+            username    : data.rows[0].username,
+            passwordHash: data.rows[0].password,
+            email   : data.rows[0].email,
+            phone_number: data.rows[0].phone_number,
+            userType: user.userType
+          });
+        }
+      });
+      findOwner (username, (err, user) => {
+        if (err) {
+          return done(err);
+        }
+        if (user) {
+          return callback(null, {
+            username    : data.rows[0].username,
+            passwordHash: data.rows[0].password,
+            email   : data.rows[0].email,
+            phone_number: data.rows[0].phone_number,
+            userType: user.userType
+          });
+        }
+      });
+    }
+  });
+}
+
+function findCareTaker (username, callback) {
+  pool.query(sql_query.query.caretakerpass, [username], (err, data) => {
+    if(err) {
+      console.error("Cannot find user");
+      return callback(null);
+    }
+
+    if(data.rows.length == 1) {
+      return callback(null, {
+        userType: "careTaker"
+      });
+    } else {
+      console.error("More than one user?");
+      return callback(null);
+    }
+  });
+}
+
+function findOwner (username, callback) {
+  pool.query(sql_query.query.ownerpass, [username], (err, data) => {
+    if(err) {
+      console.error("Cannot find user");
+      return callback(null);
+    }
+
+    if(data.rows.length == 1) {
+      return callback(null, {
+        userType: "owner"
+      });
+    }
+  });
 }
 
 passport.serializeUser(function (user, cb) {
@@ -72,11 +124,11 @@ function initPassport () {
         })
       })
     }
-  ));
+    ));
 
   passport.authMiddleware = authMiddleware;
   passport.antiMiddleware = antiMiddleware;
-	passport.findUser = findUser;
+  passport.findUser = findUser;
 }
 
 module.exports = initPassport;
