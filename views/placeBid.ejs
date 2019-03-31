@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html>
-
 <head>
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 	<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
@@ -15,23 +14,29 @@
 	<script src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.js"></script>
 	<script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.37/js/bootstrap-datetimepicker.min.js"></script>
 
-	<script src="javascripts/availabilityScript.js"></script>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
-	<title> Be a Caretaker </title>
+	<link href="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+	<!------ Include the above in your HEAD tag ---------->
 
+	<link href="//netdna.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+	<script src="//netdna.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+	<!------ Include the above in your HEAD tag ---------->
+	<script src="javascripts/bidScript.js"></script>
 </head>
-
 <body>
 	<div class="container">
-		<form id="post_form" method="post" class="form-horizontal" role="form" action="makePost">
+		<form id="bid_form" method="post" class="form-horizontal" role="form" action="placeBid">
+			<input name="ctname", id="ctname", type="hidden", value="<%=ctname%>">
+			<input name="ctstart", id="ctstart", type="hidden", value="<%=ctstart%>">
+			<input name="ctend", id="ctend", type="hidden", value="<%=ctend%>">
 			<div class="row justify-content-center">
-				<h2> Make a Post </h2>
+				<h2> Place Your Bid </h2>
 			</div>
 			<div class="row justify-content-center">
 				<div class='col-md-2'>
-					<h4> start date </h4>
+					<h4> start date   </h4>
 				</div>
 				<div class='col-md-5'>
 					<div class="form-group">
@@ -46,7 +51,7 @@
 			</div>
 			<div class="row justify-content-center">
 				<div class='col-md-2'>
-					<h4> end date </h4>
+					<h4> end date   </h4>
 				</div>
 				<div class='col-md-5'>
 					<div class="form-group">
@@ -60,14 +65,23 @@
 				</div>
 			</div>
 			<div class="row justify-content-center">
-				<button type="submit" class="btn btn-primary btn-block col-md-8">Make a Post for Availability</button>
+				<div class='col-md-2'><h4>bidding Price</h4></div>
+				<div class="col-md-5">
+					<div class="form-group">
+						<input type="number" step="0.01" min = "0" max = "10000" id="price" name="price" placeholder="price per hour" class="form-control col-sm-6">
+					</div>
+				</div>
 			</div>
+			<div class="row justify-content-center">
+				<span class="help-block">Your bidding price should range from 0 to 10000 inclusive, with minimum step of 0.01</span>
+			</div>
+			<button type="submit" class="btn btn-primary btn-block">Submit</button>
 		</form>
 	</div>
 	<script>
 		(function() {
 			window.addEventListener('load', function() {
-				var forms = [document.getElementById('post_form')];
+				var forms = [document.getElementById('bid_form')];
 				var validation = Array.prototype.filter.call(forms, function(form) {
 					form.addEventListener('submit', check, false);
 				});
@@ -90,6 +104,6 @@
 				$('#datetimepicker6').data("DateTimePicker").maxDate(e.date);
 			});
 		});
-	</script>
+	</script> <!-- /form -->
 </body>
 </html>

@@ -110,7 +110,7 @@ CREATE TABLE OfferedCares (
 
 
 CREATE TABLE Bids (
-	id VARCHAR(50), --id of bid
+	id SERIAL PRIMARY KEY,
 	oname VARCHAR(50),
 	ctname VARCHAR(50),
 	ctstart_ts TIMESTAMP, 
@@ -119,8 +119,7 @@ CREATE TABLE Bids (
 	oend_ts TIMESTAMP, --check that this end date if before the Availability's end timestamp
 	bided_price_per_hour NUMERIC(10,2),
 	FOREIGN KEY (oname) REFERENCES Owners(username) ON DELETE CASCADE,
-	FOREIGN KEY (ctname, ctstart_ts, ctend_ts) REFERENCES Availabilities(ctname, start_ts, end_ts) ON DELETE CASCADE,
-	PRIMARY KEY (id)
+	FOREIGN KEY (ctname, ctstart_ts, ctend_ts) REFERENCES Availabilities(ctname, start_ts, end_ts) ON DELETE CASCADE
 );
 
 CREATE TABLE AcceptedBids (

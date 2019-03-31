@@ -13,59 +13,59 @@
 	<script src="javascripts/registerScript.js"></script>
 </head>
 <body>
-<div class="container">
-	<form id="register_form" method="post" class="form-horizontal" role="form" action="register">
-		<h2>Registration</h2>
-		<div class="form-group">
-			<label for="userName" class="col-sm-3 control-label">User Name* </label>
-			<div class="col-sm-9">
-				<input type="text" id="username" name="username" placeholder="User Name" class="form-control" autofocus>
-			</div>
-		</div>
-		<div class="form-group">
-			<label for="email" class="col-sm-3 control-label">Email* </label>
-			<div class="col-sm-9">
-				<input type="email" id="email" placeholder="Email" class="form-control" name= "email">
-			</div>
-		</div>
-		<div class="form-group">
-			<label for="password" class="col-sm-3 control-label">Password*</label>
-			<div class="col-sm-9">
-				<input type="password" id="password" name="password" placeholder="Password" class="form-control">
-			</div>
-		</div>
-		<div class="form-group">
-			<label for="phoneNumber" class="col-sm-3 control-label">Phone number </label>
-			<div class="col-sm-9">
-				<input type="phoneNumber" id="phoneNumber" name="phoneNumber" placeholder="Phone number" class="form-control">
-				<span class="help-block">Your phone number won't be disclosed anywhere </span>
-			</div>
-		</div>
-		<div class="form-group">
-			<label class="control-label col-sm-3">Account Type</label>
-			<div class="col-sm-6">
-				<div class="row">
-					<div class="col-sm-4">
-						<label class="radio-inline">
-							<input type="radio" name = "userType" id="petOwnerRadio" value="petOwner">Pet Owner
-						</label>
-					</div>
-					<div class="col-sm-4">
-						<label class="radio-inline">
-							<input type="radio" name = "userType" id="careTakerRadio" value="careTaker">Care Taker
-						</label>
-					</div>
+	<div class="container">
+		<form id="register_form" method="post" class="form-horizontal" role="form" action="register">
+			<h2>Registration</h2>
+			<div class="form-group">
+				<label for="userName" class="col-sm-3 control-label">User Name* </label>
+				<div class="col-sm-9">
+					<input type="text" id="username" name="username" placeholder="User Name" class="form-control" autofocus>
 				</div>
 			</div>
-		</div> <!-- /.form-group -->
-		<div class="form-group">
-			<div class="col-sm-9 col-sm-offset-3">
-				<span class="help-block">*Required fields</span>
+			<div class="form-group">
+				<label for="email" class="col-sm-3 control-label">Email* </label>
+				<div class="col-sm-9">
+					<input type="email" id="email" placeholder="Email" class="form-control" name= "email">
+				</div>
 			</div>
-		</div>
-		<button type="submit" class="btn btn-primary btn-block">Register</button>
-	</form>
-	<script>
+			<div class="form-group">
+				<label for="password" class="col-sm-3 control-label">Password*</label>
+				<div class="col-sm-9">
+					<input type="password" id="password" name="password" placeholder="Password" class="form-control">
+				</div>
+			</div>
+			<div class="form-group">
+				<label for="phoneNumber" class="col-sm-3 control-label">Phone number </label>
+				<div class="col-sm-9">
+					<input type="phoneNumber" id="phoneNumber" name="phoneNumber" placeholder="Phone number" class="form-control">
+					<span class="help-block">Your phone number won't be disclosed anywhere </span>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="control-label col-sm-3">Account Type</label>
+				<div class="col-sm-6">
+					<div class="row">
+						<div class="col-sm-4">
+							<label class="radio-inline">
+								<input type="radio" name = "userType" id="petOwnerRadio" value="petOwner">Pet Owner
+							</label>
+						</div>
+						<div class="col-sm-4">
+							<label class="radio-inline">
+								<input type="radio" name = "userType" id="careTakerRadio" value="careTaker">Care Taker
+							</label>
+						</div>
+					</div>
+				</div>
+			</div> <!-- /.form-group -->
+			<div class="form-group">
+				<div class="col-sm-9 col-sm-offset-3">
+					<span class="help-block">*Required fields</span>
+				</div>
+			</div>
+			<button type="submit" class="btn btn-primary btn-block">Register</button>
+		</form>
+		<script>
 			(function() {
 				window.addEventListener('load', function() {
 					var forms = [document.getElementById('register_form')];
@@ -74,7 +74,7 @@
 					});
 				}, false);
 			})();
-	</script> <!-- /form -->
-</div> <
+		</script> <!-- /form -->
+	</div>
 </body>
 </html>

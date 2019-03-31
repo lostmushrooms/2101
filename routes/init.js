@@ -20,15 +20,18 @@ function initRouter(app) {
 	
 	/* PROTECTED GET */
 	app.get('/'      , passport.antiMiddleware(), index );
+	app.get('/index'      , passport.antiMiddleware(), index );
 	app.get('/login' , passport.antiMiddleware(), login);
 	app.get('/register' , passport.antiMiddleware(), register);
 	app.get('/dashboard' , passport.authMiddleware(), dashboard);
 	app.get('/makePost' , passport.authMiddleware(), makePost);
 	app.get('/viewPost' , passport.authMiddleware(), viewPost);
+	app.get('/placeBid' , passport.authMiddleware(), placeBid);
 	
 	/* PROTECTED POST */
 	app.post('/register'   , passport.antiMiddleware(), reg_user);
 	app.post('/makePost'   , passport.authMiddleware(), make_post);
+	app.post('/placeBid'   , passport.authMiddleware(), place_bid);
 
 	/* LOGIN */
 	app.post('/login', passport.authenticate('local', {
@@ -84,6 +87,13 @@ function makePost(req, res, next) {
 	} else {
 		res.redirect('/dashboard');
 	}
+}
+
+function placeBid(req, res, next) {
+	if(req.user.userType != "owner") {
+		res.redirect('/dashboard');
+	}
+	res.render('placeBid', { page: 'placeBid', auth: true, ctname: req.query.ctname, ctstart: req.query.startD, ctend: req.query.endD });
 }
 
 function viewPost(req, res, next) {
@@ -165,16 +175,35 @@ function reg_user(req, res, next) {
 }
 
 function make_post(req, res, next) {
-	var start  = req.body.datepicker6;
-	var end  = req.body.datepicker7;
+	var start  = req.body.datetimepicker6;
+	var end  = req.body.datetimepicker7;
 	var username = req.user.username;
-	console.log(req.body);
 	pool.query(sql_query.query.add_availability, [username,start,end], (err, data) => {
 		if(err) {
-			console.error("Error in adding user", err);
+			console.error("Error in adding post", err);
 			res.redirect('/makePost?post=fail');
 		} else {
 			res.redirect('/dashboard');
+		}
+	});
+}
+
+function place_bid(req, res, next) {
+	var start  = req.body.datetimepicker6;
+	var end  = req.body.datetimepicker7;
+	var oname = req.user.username;
+	var price = req.body.price;
+	var ctstart = req.body.ctstart;
+	ctstart = new Date(ctstart);
+	var ctend = req.body.ctend;
+	ctend = new Date(ctend);
+	var ctname = req.body.ctname;
+	pool.query(sql_query.query.add_bid, [oname,ctname,ctstart,ctend,start,end,price], (err, data) => {
+		if(err) {
+			console.error("Error in adding bid", err);
+			res.redirect('/viewPost');
+		} else {
+			res.redirect('dashboard');
 		}
 	});
 }

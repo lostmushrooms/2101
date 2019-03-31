@@ -14,8 +14,8 @@
 
 	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.1/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
 	<link href="https://cdn.datatables.net/1.10.18/css/dataTables.bootstrap4.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://code.getmdl.io/1.1.3/material.min.css">
-    <script src="https://code.getmdl.io/1.1.3/material.min.js"></script>
+	<link rel="stylesheet" href="https://code.getmdl.io/1.1.3/material.min.css">
+	<script src="https://code.getmdl.io/1.1.3/material.min.js"></script>
 
 	<!-- Custom styles for this template-->
 	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:regular,bold,italic,thin,light,bolditalic,black,medium&amp;lang=en">
@@ -56,19 +56,27 @@
 											<tr>
 												<th>Caretaker Name</th>
 												<th>Start Date</th>
-												<th>Start Date</th>
+												<th>End Date</th>
+												<th>Place Bid</th>
 											</tr>
 										</thead>
 										<tfoot>
-											<th colspan="2">Total:</th>
+											<th colspan="3">Total:</th>
 											<th><i><%= ctx %></i></th>
 										</tfoot>
 										<tbody>
 											<% for(var i=0; i<tbl.length; i++) { %>
 											<tr>
 												<td><%= tbl[i].ctname%></td>
-												<td><%= tbl[i].start_date%></td>
-												<td><%= tbl[i].end_date%></td>
+												<td><%= tbl[i].start_ts.toLocaleDateString()%></td>
+												<td><%= tbl[i].end_ts.toLocaleDateString()%></td>
+												<td>
+													<a href="/placeBid?ctname=<%= tbl[i].ctname%>&startD=<%= tbl[i].start_ts.toLocaleDateString()%>&endD=<%= tbl[i].end_ts.toLocaleDateString()%>">
+														<button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" >
+															Place Bid
+														</button>
+													</a>
+												</td>
 											</tr>
 											<% } %>
 										</tbody>
