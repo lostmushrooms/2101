@@ -91,6 +91,7 @@ CREATE TABLE Chats (
 );
 		
 CREATE TABLE Availabilities (
+	id SERIAL UNIQUE NOT NULL,
 	ctname VARCHAR(50), --username of caretaker who advertised this availability
 	start_ts TIMESTAMP,
 	end_ts TIMESTAMP,
@@ -114,6 +115,7 @@ CREATE TABLE OfferedCares (
 
 CREATE TABLE Bids (
 	id SERIAL PRIMARY KEY,
+	availabilityId INTEGER,
 	oname VARCHAR(50),
 	ctname VARCHAR(50),
 	ctstart_ts TIMESTAMP, 
@@ -121,6 +123,7 @@ CREATE TABLE Bids (
 	ostart_ts TIMESTAMP, --check that this start date is after the Availability's start timestamp
 	oend_ts TIMESTAMP, --check that this end date if before the Availability's end timestamp
 	bidded_price_per_hour NUMERIC(10,2),
+	FOREIGN KEY (availabilityId) REFERENCES Availabilities(id) ON DELETE CASCADE,
 	FOREIGN KEY (oname) REFERENCES Owners(username) ON DELETE CASCADE,
 	FOREIGN KEY (ctname, ctstart_ts, ctend_ts) REFERENCES Availabilities(ctname, start_ts, end_ts) ON DELETE CASCADE
 );
@@ -252,27 +255,27 @@ VALUES
 	(2, 'Miaaaaa97', 'Purp', 'purrrrrrrrrp');
 
 -- Availabilities
-INSERT INTO Availabilities (ctname, start_ts, end_ts) 
+INSERT INTO Availabilities (id, ctname, start_ts, end_ts) 
 VALUES
-    ('Bob00', to_date('2019-05-01', 'YYYY-MM-DD'), to_date('2019-05-31', 'YYYY-MM-DD')),
-	('Bob00', to_date('2019-06-02', 'YYYY-MM-DD'), to_date('2019-06-20', 'YYYY-MM-DD')),
-	('Miaaaaa666', to_date('2019-04-19', 'YYYY-MM-DD'), to_date('2019-05-06', 'YYYY-MM-DD')),
-	('Miaaaaa666', to_date('2019-05-08', 'YYYY-MM-DD'), to_date('2019-06-20', 'YYYY-MM-DD')),
-	('Miaaaaa666', to_date('2019-07-20', 'YYYY-MM-DD'), to_date('2019-07-31', 'YYYY-MM-DD'));
+    (1, 'Bob00', to_date('2019-05-01', 'YYYY-MM-DD'), to_date('2019-05-31', 'YYYY-MM-DD')),
+	(2, 'Bob00', to_date('2019-06-02', 'YYYY-MM-DD'), to_date('2019-06-20', 'YYYY-MM-DD')),
+	(3, 'Miaaaaa666', to_date('2019-04-19', 'YYYY-MM-DD'), to_date('2019-05-06', 'YYYY-MM-DD')),
+	(4, 'Miaaaaa666', to_date('2019-05-08', 'YYYY-MM-DD'), to_date('2019-06-20', 'YYYY-MM-DD')),
+	(5, 'Miaaaaa666', to_date('2019-07-20', 'YYYY-MM-DD'), to_date('2019-07-31', 'YYYY-MM-DD'));
 
 -- Bids
-INSERT INTO Bids (id, oname, ctname, ctstart_ts, ctend_ts, ostart_ts, oend_ts, bidded_price_per_hour)
+INSERT INTO Bids (id, availabilityId, oname, ctname, ctstart_ts, ctend_ts, ostart_ts, oend_ts, bidded_price_per_hour)
 VALUES
-	(1, 'Miaaaaa97', 'Miaaaaa666', to_date('2019-04-19', 'YYYY-MM-DD'), to_date('2019-05-06', 'YYYY-MM-DD'), to_date('2019-04-20', 'YYYY-MM-DD'), to_date('2019-05-05', 'YYYY-MM-DD'), 20),
-	(2, 'Alice00', 'Miaaaaa666', to_date('2019-04-19', 'YYYY-MM-DD'), to_date('2019-05-06', 'YYYY-MM-DD'), to_date('2019-04-20', 'YYYY-MM-DD'), to_date('2019-05-05', 'YYYY-MM-DD'), 25),
-	(3, 'Miaaaaa97', 'Miaaaaa666', to_date('2019-05-08', 'YYYY-MM-DD'), to_date('2019-06-20', 'YYYY-MM-DD'), to_date('2019-05-08', 'YYYY-MM-DD'), to_date('2019-06-20', 'YYYY-MM-DD'), 20),
-	(4, 'Alice00', 'Miaaaaa666', to_date('2019-05-08', 'YYYY-MM-DD'), to_date('2019-06-20', 'YYYY-MM-DD'), to_date('2019-05-08', 'YYYY-MM-DD'), to_date('2019-06-20', 'YYYY-MM-DD'), 25),
-	(5, 'Miaaaaa97', 'Miaaaaa666', to_date('2019-07-20', 'YYYY-MM-DD'), to_date('2019-07-31', 'YYYY-MM-DD'), to_date('2019-03-31', 'YYYY-MM-DD'), to_date('2019-07-31', 'YYYY-MM-DD'), 20),
-	(6, 'Alice00', 'Miaaaaa666', to_date('2019-07-20', 'YYYY-MM-DD'), to_date('2019-07-31', 'YYYY-MM-DD'), to_date('2019-03-31', 'YYYY-MM-DD'), to_date('2019-07-31', 'YYYY-MM-DD'), 25),
-	(7, 'Miaaaaa97', 'Bob00', to_date('2019-06-02', 'YYYY-MM-DD'), to_date('2019-06-20', 'YYYY-MM-DD'), to_date('2019-05-01', 'YYYY-MM-DD'), to_date('2019-05-05', 'YYYY-MM-DD'), 20),
-	(8, 'Alice00', 'Bob00', to_date('2019-06-02', 'YYYY-MM-DD'), to_date('2019-06-20', 'YYYY-MM-DD'), to_date('2019-05-01', 'YYYY-MM-DD'), to_date('2019-05-05', 'YYYY-MM-DD'), 25),
-	(9, 'Miaaaaa97', 'Bob00', to_date('2019-05-01', 'YYYY-MM-DD'), to_date('2019-05-31', 'YYYY-MM-DD'), to_date('2019-05-01', 'YYYY-MM-DD'), to_date('2019-05-31', 'YYYY-MM-DD'), 20),
-	(10, 'Alice00', 'Bob00', to_date('2019-05-01', 'YYYY-MM-DD'), to_date('2019-05-31', 'YYYY-MM-DD'), to_date('2019-05-01', 'YYYY-MM-DD'), to_date('2019-05-31', 'YYYY-MM-DD'), 25);
+	(1, 3, 'Miaaaaa97', 'Miaaaaa666', to_date('2019-04-19', 'YYYY-MM-DD'), to_date('2019-05-06', 'YYYY-MM-DD'), to_date('2019-04-20', 'YYYY-MM-DD'), to_date('2019-05-05', 'YYYY-MM-DD'), 20),
+	(2, 3, 'Alice00', 'Miaaaaa666', to_date('2019-04-19', 'YYYY-MM-DD'), to_date('2019-05-06', 'YYYY-MM-DD'), to_date('2019-04-20', 'YYYY-MM-DD'), to_date('2019-05-05', 'YYYY-MM-DD'), 25),
+	(3, 4, 'Miaaaaa97', 'Miaaaaa666', to_date('2019-05-08', 'YYYY-MM-DD'), to_date('2019-06-20', 'YYYY-MM-DD'), to_date('2019-05-08', 'YYYY-MM-DD'), to_date('2019-06-20', 'YYYY-MM-DD'), 20),
+	(4, 4, 'Alice00', 'Miaaaaa666', to_date('2019-05-08', 'YYYY-MM-DD'), to_date('2019-06-20', 'YYYY-MM-DD'), to_date('2019-05-08', 'YYYY-MM-DD'), to_date('2019-06-20', 'YYYY-MM-DD'), 25),
+	(5, 5, 'Miaaaaa97', 'Miaaaaa666', to_date('2019-07-20', 'YYYY-MM-DD'), to_date('2019-07-31', 'YYYY-MM-DD'), to_date('2019-03-31', 'YYYY-MM-DD'), to_date('2019-07-31', 'YYYY-MM-DD'), 20),
+	(6, 5, 'Alice00', 'Miaaaaa666', to_date('2019-07-20', 'YYYY-MM-DD'), to_date('2019-07-31', 'YYYY-MM-DD'), to_date('2019-03-31', 'YYYY-MM-DD'), to_date('2019-07-31', 'YYYY-MM-DD'), 25),
+	(7, 2, 'Miaaaaa97', 'Bob00', to_date('2019-06-02', 'YYYY-MM-DD'), to_date('2019-06-20', 'YYYY-MM-DD'), to_date('2019-05-01', 'YYYY-MM-DD'), to_date('2019-05-05', 'YYYY-MM-DD'), 20),
+	(8, 2, 'Alice00', 'Bob00', to_date('2019-06-02', 'YYYY-MM-DD'), to_date('2019-06-20', 'YYYY-MM-DD'), to_date('2019-05-01', 'YYYY-MM-DD'), to_date('2019-05-05', 'YYYY-MM-DD'), 25),
+	(9, 1, 'Miaaaaa97', 'Bob00', to_date('2019-05-01', 'YYYY-MM-DD'), to_date('2019-05-31', 'YYYY-MM-DD'), to_date('2019-05-01', 'YYYY-MM-DD'), to_date('2019-05-31', 'YYYY-MM-DD'), 20),
+	(10, 1, 'Alice00', 'Bob00', to_date('2019-05-01', 'YYYY-MM-DD'), to_date('2019-05-31', 'YYYY-MM-DD'), to_date('2019-05-01', 'YYYY-MM-DD'), to_date('2019-05-31', 'YYYY-MM-DD'), 25);
 
 -- Accepted Bids
 INSERT INTO AcceptedBids (id, orating, ctrating, ocomments, ctcomments)

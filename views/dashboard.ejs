@@ -3,5 +3,12 @@
 <head>
 </head>
 <body>
-    <h1>Hi, dashboard</h1> <br/>
+	<% if (userType == 'owner') { %>
+	  <%- include ownerdashboard.ejs %>
+    <% } else if (userType == 'careTaker') { %>
+      <%- include caretakerdashboard.ejs %>
+    <% } else { %>
+      <h1>Unknown Error</h1>
+    <% } %>
+</body>
 </html>
