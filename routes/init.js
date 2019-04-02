@@ -9,9 +9,6 @@ const pool = new Pool({
   //ssl: true
 });
 
-// The following is example code from Prof
-// can use this style to link js and sql
-
 const round = 10;
 const salt  = bcrypt.genSaltSync(round);
 
