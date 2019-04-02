@@ -24,11 +24,13 @@ function initRouter(app) {
 	app.get('/makePost' , passport.authMiddleware(), makePost);
 	app.get('/viewPost' , passport.authMiddleware(), viewPost);
 	app.get('/placeBid' , passport.authMiddleware(), placeBid);
+	app.get('/placeBid' , passport.authMiddleware(), placeBid);
+	app.get('/my_availabilities', passport.authMiddleware(), my_availabilities);
+	app.get('/viewBids', passport.authMiddleware(), viewBids);
 	
 	/* PROTECTED POST */
 	app.post('/register'   , passport.antiMiddleware(), reg_user);
 	app.post('/makePost'   , passport.authMiddleware(), make_post);
-	app.post('/placeBid'   , passport.authMiddleware(), place_bid);
 
 	/* LOGIN */
 	app.post('/login', passport.authenticate('local', {
@@ -75,7 +77,11 @@ function register(req, res, next) {
 }
 
 function dashboard(req, res, next) {
-	basic(req, res, 'dashboard', { info_msg: msg(req, 'info', 'Information updated successfully', 'Error in updating information'), pass_msg: msg(req, 'pass', 'Password updated successfully', 'Error in updating password'), auth: true });
+	basic(req, res, 'dashboard', { 
+		info_msg: msg(req, 'info', 'Information updated successfully', 'Error in updating information'), 
+		pass_msg: msg(req, 'pass', 'Password updated successfully', 'Error in updating password'), 
+		auth: true 
+	});
 }
 
 function makePost(req, res, next) {
@@ -91,6 +97,38 @@ function placeBid(req, res, next) {
 		res.redirect('/dashboard');
 	}
 	res.render('placeBid', { page: 'placeBid', auth: true, ctname: req.query.ctname, ctstart: req.query.startD, ctend: req.query.endD });
+}
+
+function viewBids(req, res, next) {
+	if(req.user.userType != "careTaker") {
+		res.redirect('dashboard');
+	}
+	var ctx = 0, tbl;
+	pool.query(sql_query.query.single_avail_bids, [req.query.bidId], (err, data) => {
+		if(err || !data.rows || data.rows.length == 0) {
+			ctx = 0;
+			tbl = [];
+		} else {
+			ctx = data.rows.length;
+			tbl = data.rows;
+		}
+		basic(req, res, 'viewBids', { ctx: ctx, tbl: tbl, auth: true });
+	});
+}
+
+function my_availabilities(req, res, next) {
+	var ctx = 0, tbl;
+	console.log(req.user.user);
+	pool.query(sql_query.query.my_avail, [req.user.username], (err, data) => {
+		if(err || !data.rows || data.rows.length == 0) {
+			ctx = 0;
+			tbl = [];
+		} else {
+			ctx = data.rows.length;
+			tbl = data.rows;
+		}
+		basic(req, res, 'my_availabilities', { ctx: ctx, tbl: tbl, auth: true });
+	});
 }
 
 function viewPost(req, res, next) {

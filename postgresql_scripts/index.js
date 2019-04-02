@@ -6,6 +6,10 @@ sql.query = {
 	// Information
 	page_lims: 'SELECT * FROM Availabilities ORDER BY start_ts ASC LIMIT 10 OFFSET $1',
 	ctx_posts: 'SELECT COUNT(*) FROM Availabilities',
+
+	// Caretakers
+	my_avail: 'SELECT * FROM Availabilities WHERE ctname=$1 ORDER BY start_ts ASC',
+	single_avail_bids: 'SELECT * FROM Bids WHERE availabilityId=$1',
 	
 	// Insertion
 	add_user: 'INSERT INTO Users (username, password, email, phone_number) VALUES ($1,$2,$3,$4)',

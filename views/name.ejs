@@ -1,0 +1,12 @@
+<ol class="breadcrumb">
+	<li class="breadcrumb-item">
+		<% if(userType === "owner") { %>
+			<i class="fas fa-chess-pawn fa-fw"></i>
+		<% } else if(userType === "caretaker") { %>
+			<i class="fas fa-chess-knight fa-fw"></i>
+		<% } else { %>
+			<i class="fas fa-chess-king fa-fw"></i>
+		<% } %>
+		<%= user %>
+	</li>
+</ol>
