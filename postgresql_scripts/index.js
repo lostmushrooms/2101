@@ -15,8 +15,8 @@ sql.query = {
 	add_user: 'INSERT INTO Users (username, password, email, phone_number) VALUES ($1,$2,$3,$4)',
 	add_owner: 'INSERT INTO Owners (username) VALUES ($1)',
 	add_caretaker: 'INSERT INTO Caretakers (username) VALUES ($1)',
-	add_availability: 'INSERT INTO Availabilities (ctname, start_ts, end_ts) VALUES ($1,$2,$3)',
-	add_bid: 'INSERT INTO Bids (oname, ctname, ctstart_ts, ctend_ts, ostart_ts, oend_ts, bided_price_per_hour) VALUES ($1,$2,$3,$4,$5,$6,$7)',
+	add_availability: 'INSERT INTO Availabilities (id, ctname, start_ts, end_ts) VALUES ((SELECT (COALESCE(MAX(id), 0)) from Availabilities)+1,$1,$2,$3)',
+	add_bid: 'INSERT INTO Bids (oname, ctname, ctstart_ts, ctend_ts, ostart_ts, oend_ts, bided_price_per_hour) VALUES ((SELECT (COALESCE(MAX(id), 0)) from Bids)+1, $1,$2,$3,$4,$5,$6,$7)',
 
 	// Login
 	userpass: 'SELECT * FROM Users WHERE username=$1',
