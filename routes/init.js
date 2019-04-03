@@ -24,12 +24,13 @@ function initRouter(app) {
 	app.get('/makePost' , passport.authMiddleware(), makePost);
 	app.get('/viewPost' , passport.authMiddleware(), viewPost);
 	app.get('/placeBid' , passport.authMiddleware(), placeBid);
-	app.get('/placeBid' , passport.authMiddleware(), placeBid);
 	app.get('/my_availabilities', passport.authMiddleware(), my_availabilities);
 	app.get('/viewBids', passport.authMiddleware(), viewBids);
 	
 	/* PROTECTED POST */
 	app.post('/register'   , passport.antiMiddleware(), reg_user);
+	app.post('/placeBid' , passport.authMiddleware(), place_bid);
+	app.post('/acceptBid' , passport.authMiddleware(), accept_bid);
 	app.post('/makePost'   , passport.authMiddleware(), make_post);
 
 	/* LOGIN */
@@ -96,7 +97,7 @@ function placeBid(req, res, next) {
 	if(req.user.userType != "owner") {
 		res.redirect('/dashboard');
 	}
-	res.render('placeBid', { page: 'placeBid', auth: true, ctname: req.query.ctname, ctstart: req.query.startD, ctend: req.query.endD });
+	res.render('placeBid', { page: 'placeBid', auth: true, ctname: req.query.ctname, ctstart: req.query.startD, ctend: req.query.endD, aid: req.query.aid });
 }
 
 function viewBids(req, res, next) {
@@ -104,7 +105,13 @@ function viewBids(req, res, next) {
 		res.redirect('dashboard');
 	}
 	var ctx = 0, tbl;
-	pool.query(sql_query.query.single_avail_bids, [req.query.bidId], (err, data) => {
+	pool.query(sql_query.query.single_avail_bids, [req.query.aid], (err, data) => {
+		var id = null;
+		var row = data.rows[0];
+		if (row) {
+			id = row.id;
+		}
+		console.log(data.rows[0]);
 		if(err || !data.rows || data.rows.length == 0) {
 			ctx = 0;
 			tbl = [];
@@ -112,7 +119,7 @@ function viewBids(req, res, next) {
 			ctx = data.rows.length;
 			tbl = data.rows;
 		}
-		basic(req, res, 'viewBids', { ctx: ctx, tbl: tbl, auth: true });
+		basic(req, res, 'viewBids', { ctx: ctx, tbl: tbl, auth: true, bid: id});
 	});
 }
 
@@ -233,12 +240,25 @@ function place_bid(req, res, next) {
 	var ctend = req.body.ctend;
 	ctend = new Date(ctend);
 	var ctname = req.body.ctname;
-	pool.query(sql_query.query.add_bid, [oname,ctname,ctstart,ctend,start,end,price], (err, data) => {
+	var availabilityid = req.body.aid;
+	pool.query(sql_query.query.add_bid, [availabilityid, oname,start,end,price], (err, data) => {
 		if(err) {
 			console.error("Error in adding bid", err);
 			res.redirect('/viewPost');
 		} else {
-			res.redirect('dashboard');
+			res.redirect('/dashboard');
+		}
+	});
+}
+
+function accept_bid(req, res, next) {
+	var id  = req.body.bid;
+	pool.query(sql_query.query.accept_bid, [id], (err, data) => {
+		if(err) {
+			console.error("Error in acceptbid " + id, err);
+			res.redirect('/dashboard');
+		} else {
+			res.redirect('/dashboard');
 		}
 	});
 }
