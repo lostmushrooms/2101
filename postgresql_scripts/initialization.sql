@@ -91,7 +91,7 @@ CREATE TABLE Chats (
 );
 		
 CREATE TABLE Availabilities (
-	id INTEGER UNIQUE NOT NULL,
+	id SERIAL UNIQUE NOT NULL,
 	ctname VARCHAR(50), --username of caretaker who advertised this availability
 	start_ts TIMESTAMP,
 	end_ts TIMESTAMP,
@@ -115,7 +115,7 @@ CREATE TABLE OfferedCares (
 
 
 CREATE TABLE Bids (
-	id INTEGER PRIMARY KEY,
+	id SERIAL PRIMARY KEY,
 	availabilityId INTEGER,
 	oname VARCHAR(50),
 	ostart_ts TIMESTAMP, --check that this start date is after the Availability's start timestamp
@@ -139,6 +139,14 @@ CREATE TABLE AcceptedBids (
 	CHECK (1<=ctrating AND ctrating <= 5)
 );
 
+--weak entity to acceptedBid
+CREATE TABLE Payments (
+	payment_id SERIAL, 
+	id INTEGER, --id of accepted bid
+	value DECIMAL(12,2), --value of payment (positive if from Owner to Caretaker)
+	FOREIGN KEY (id) REFERENCES Bids(id) ON DELETE CASCADE,
+	PRIMARY KEY (payment_id, id)
+);
 
 --Triggers
 --Caretaker cannot be Owner.
@@ -213,7 +221,7 @@ $$
 DECLARE tscursor CURSOR (new_start_ts TIMESTAMP, new_end_ts TIMESTAMP) FOR
 	SELECT *
 	FROM Availabilities A
- 	WHERE A.start_ts <= new_end_ts AND A.end_ts >= new_start_ts AND A.ctname = new.ctname AND A.id <> new.id;
+ 	WHERE A.start_ts <= new_end_ts AND A.end_ts >= new_start_ts AND A.ctname = new.ctname;
 	final_start_ts TIMESTAMP;
 	final_end_ts TIMESTAMP;
 	availability RECORD;
@@ -252,6 +260,56 @@ CREATE TRIGGER merge_trig
 BEFORE INSERT OR UPDATE ON Availabilities
 FOR EACH ROW
 EXECUTE PROCEDURE merge_availability();
+
+/*
+--An owner should not make a bid, u and v where u.ostart_ts <= v.oend_ts but u.oend_ts >= v.ostart_ts and o.availabilityId = v.availabilityId. 
+--This is an overlap and we will merge these results to create another bid which includes both timeframes.
+CREATE OR REPLACE FUNCTION merge_bids()
+RETURNS TRIGGER AS
+$$
+DECLARE tscursor CURSOR (new_start_ts TIMESTAMP, new_end_ts TIMESTAMP) FOR
+	SELECT *
+	FROM Bids B
+ 	WHERE B.ostart_ts <= new_end_ts AND A.oend_ts >= new_start_ts AND A.oname = new.oname AND B.availabilityId = new.availabilityId;
+	final_start_ts TIMESTAMP;
+	final_end_ts TIMESTAMP;
+	bid RECORD;
+BEGIN
+	OPEN tscursor(new_start_ts := new.ostart_ts,	 new_end_ts := new.oend_ts);
+	final_start_ts := new.start_ts;
+	final_end_ts := new.end_ts;
+	--first loop to extract the final start_ts and end_ts.
+	LOOP
+		FETCH tscursor INTO availability;
+		EXIT WHEN NOT FOUND;
+		final_start_ts := LEAST(availability.start_ts, final_start_ts);
+		final_end_ts := GREATEST(availability.end_ts, final_end_ts);
+		raise notice 'a';
+	END LOOP;
+	MOVE BACKWARD ALL FROM tscursor;
+	ALTER TABLE Bids DISABLE TRIGGER ALL; --temporarily disable constraints for Bids so that id can be altered.
+	--second loop to update Bids (which has a foreign reference to Availabilities) and delete entries in Availabilities which are in the overlap.
+	LOOP
+		FETCH tscursor INTO availability;
+		EXIT WHEN NOT FOUND;
+		UPDATE Bids B
+		SET availabilityId = new.id
+		where B.availabilityId = availability.id;
+		DELETE FROM Availabilities A WHERE CURRENT OF tscursor;
+		raise notice 'b';
+	END LOOP;
+	CLOSE tscursor;
+	ALTER TABLE Bids ENABLE TRIGGER ALL; 
+	--finally insert 1 entry into Availability which encompasses all the deleted entries as well as the newest entry.
+	RETURN (new.id, new.ctname, final_start_ts, final_end_ts);
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER merge_trig
+BEFORE INSERT OR UPDATE ON Availabilities
+FOR EACH ROW
+EXECUTE PROCEDURE merge_availability();
+*/
 
 --Due to covering constraint of the ISA relationship, insertion into Users is handled by js-side logic, whereas 
 --deletion from Owners and Caretakers is handled using the following triggers.
