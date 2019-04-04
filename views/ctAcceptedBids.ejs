@@ -42,7 +42,7 @@
 		<div class="android-content mdl-layout__content">
 
 			<div id="wrapper">
-				<%- include dashsidebarowner.ejs %>
+				<%- include dashsidebarct.ejs %>
 				<div id="content-wrapper">
 					<div class="container-fluid">
 						<div class="card mb-3">
@@ -54,7 +54,7 @@
 									<table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
 										<thead>
 											<tr>
-												<th>Caretaker Name</th>
+												<th>Owner Name</th>
 												<th>Start Date</th>
 												<th>End Date</th>
 												<th>Bid Price</th>
@@ -63,17 +63,10 @@
 										<tbody>
 											<% for(var i=0; i<tbl.length; i++) { %>
 											<tr>
-												<td><%= tbl[i].ctname %></td>
+												<td><%= tbl[i].oname %></td>
 												<td><%= tbl[i].start.toLocaleDateString() %></td>
 												<td><%= tbl[i].end.toLocaleDateString() %></td>
 												<td><%= tbl[i].price %></td>
-												<td>
-													<a href="/">
-														<button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" >
-															Make Payment
-														</button>
-													</a>
-												</td>
 											</tr>
 											<% } %>
 										</tbody>

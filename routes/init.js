@@ -21,13 +21,19 @@ function initRouter(app) {
 	app.get('/login' , passport.antiMiddleware(), login);
 	app.get('/register' , passport.antiMiddleware(), register);
 	app.get('/dashboard' , passport.authMiddleware(), dashboard);
-	app.get('/makePost' , passport.authMiddleware(), makePost);
+	
+	// owner
 	app.get('/viewPost' , passport.authMiddleware(), viewPost);
 	app.get('/placeBid' , passport.authMiddleware(), placeBid);
-	app.get('/my_availabilities', passport.authMiddleware(), my_availabilities);
 	app.get('/viewBids', passport.authMiddleware(), viewBids);
 	app.get('/placedBids', passport.authMiddleware(), placedBids);
 	app.get('/ownerAcceptedBids', passport.authMiddleware(), ownerAcceptedBids);
+	app.get('/pets', passport.authMiddleware(), Pets);
+
+	//ct
+	app.get('/makePost' , passport.authMiddleware(), makePost);
+	app.get('/my_availabilities', passport.authMiddleware(), my_availabilities);
+	app.get('/ctAcceptedBids', passport.authMiddleware(), ctAcceptedBids);
 	
 	/* PROTECTED POST */
 	app.post('/register'   , passport.antiMiddleware(), reg_user);
@@ -89,7 +95,7 @@ function dashboard(req, res, next) {
 
 function makePost(req, res, next) {
 	if (req.user.userType == "careTaker") {
-		res.render('makePost', { page: 'makePost', auth: true });
+		res.render('makePost', { user: req.user.username, page: 'makePost', auth: true });
 	} else {
 		res.redirect('/dashboard');
 	}
@@ -122,6 +128,27 @@ function viewBids(req, res, next) {
 			tbl = data.rows;
 		}
 		basic(req, res, 'viewBids', { ctx: ctx, tbl: tbl, auth: true, bid: id});
+	});
+}
+
+function Pets(req, res, next) {
+	if(req.user.userType != "owner") {
+		res.redirect('dashboard');
+	}
+	var tbl;
+	pool.query(sql_query.query.owner_pets, [req.user.username], (err, data) => {
+		var id = null;
+		var row = data.rows[0];
+		if (row) {
+			id = row.id;
+		}
+		console.log(data.rows[0]);
+		if(err || !data.rows || data.rows.length == 0) {
+			tbl = [];
+		} else {
+			tbl = data.rows;
+		}
+		basic(req, res, 'Pets', { tbl: tbl, auth: true, bid: id});
 	});
 }
 
@@ -208,6 +235,27 @@ function ownerAcceptedBids(req, res, next) {
 			tbl = data.rows;
 		}
 		basic(req, res, 'ownerAcceptedBids', { tbl: tbl, auth: true});
+	});
+}
+
+function ctAcceptedBids(req, res, next) {
+	if(req.user.userType != "careTaker") {
+		res.redirect('dashboard');
+	}
+	var tbl;
+	pool.query(sql_query.query.ct_accepted_bids, [req.user.username], (err, data) => {
+		var id = null;
+		var row = data.rows[0];
+		if (row) {
+			id = row.id;
+		}
+		console.log(data.rows[0]);
+		if(err || !data.rows || data.rows.length == 0) {
+			tbl = [];
+		} else {
+			tbl = data.rows;
+		}
+		basic(req, res, 'ctAcceptedBids', { tbl: tbl, auth: true});
 	});
 }
 
