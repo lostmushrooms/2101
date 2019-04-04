@@ -7,12 +7,17 @@
 		</a>
 	</li>
 	<li class="nav-item">
-		<a class="nav-link <%= page==="games" ? "active" : "" %>" href="<%= page==="games" ? "#" : "/games" %>">
+		<a class="nav-link <%= page==="viewPost" ? "active" : "" %>" href="<%= page==="viewPost" ? "#" : "/viewPost" %>">
+			<i class="fas fa-fw fa-trophy"></i>
+			<span>Find Caretakers</span></a>
+	</li>
+	<li class="nav-item">
+		<a class="nav-link <%= page==="placedBids" ? "active" : "" %>" href="<%= page==="placedBids" ? "#" : "/placedBids" %>">
 			<i class="fas fa-fw fa-dice"></i>
 			<span>Placed Bids</span></a>
 	</li>
 	<li class="nav-item">
-		<a class="nav-link <%= page==="plays" ? "active" : "" %>" href="<%= page==="plays" ? "#" : "/plays" %>">
+		<a class="nav-link <%= page==="ownerAcceptedBids" ? "active" : "" %>" href="<%= page==="ownerAcceptedBids" ? "#" : "/ownerAcceptedBids" %>">
 			<i class="fas fa-fw fa-trophy"></i>
 			<span>Accepted Bids</span></a>
 	</li>

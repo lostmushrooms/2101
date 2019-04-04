@@ -398,15 +398,12 @@ INSERT INTO Availabilities (id, ctname, start_ts, end_ts)
 VALUES
 	(6,'Miaaaaa666', to_date('2018-05-15', 'YYYY-MM-DD'), to_date('2019-08-21', 'YYYY-MM-DD')),
 	(7,'Miaaaaa666', to_date('2019-09-06', 'YYYY-MM-DD'), to_date('2019-09-26', 'YYYY-MM-DD')),
-	(8,'Miaaaaa666', to_date('2019-09-05', 'YYYY-MM-DD'), to_date('2019-09-15', 'YYYY-MM-DD'))
-	;	
+	(8,'Miaaaaa666', to_date('2019-09-05', 'YYYY-MM-DD'), to_date('2019-09-15', 'YYYY-MM-DD'));	
 
-/*
+
 -- Accepted Bids
 INSERT INTO AcceptedBids (id, orating, ctrating, ocomments, ctcomments)
 VALUES
 	(2, 5, 5, 'good service', 'cute cat'),
 	(3, 5, 5, 'good service', 'cute dog'),
-	(7, 5, 5, 'good service', 'cuuuuute cat'),
 	(10, 5, 5, 'good service', 'cuuuuute dog');
-*/

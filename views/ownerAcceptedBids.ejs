@@ -7,7 +7,7 @@
 	<meta name="description" content="">
 	<meta name="author" content="">
 
-	<title>View Post</title>
+	<title>Find Caretaker</title>
 	<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut" crossorigin="anonymous"></script>
 	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k" crossorigin="anonymous"></script>
@@ -47,7 +47,7 @@
 					<div class="container-fluid">
 						<div class="card mb-3">
 							<div class="card-header">
-								<i class="fas fa-dice"></i> &nbsp; Search for Your Caretaker
+								<i class="fas fa-dice"></i> &nbsp; Placed Bids
 							</div>
 							<div class="card-body">
 								<div class="table-responsive">
@@ -57,23 +57,20 @@
 												<th>Caretaker Name</th>
 												<th>Start Date</th>
 												<th>End Date</th>
-												<th>Place Bid</th>
+												<th>Bid Price</th>
 											</tr>
 										</thead>
-										<tfoot>
-											<th colspan="3">Total:</th>
-											<th><i><%= ctx %></i></th>
-										</tfoot>
 										<tbody>
 											<% for(var i=0; i<tbl.length; i++) { %>
 											<tr>
-												<td><%= tbl[i].ctname%></td>
-												<td><%= tbl[i].start_ts.toLocaleDateString()%></td>
-												<td><%= tbl[i].end_ts.toLocaleDateString()%></td>
+												<td><%= tbl[i].ctname %></td>
+												<td><%= tbl[i].start.toLocaleDateString() %></td>
+												<td><%= tbl[i].end.toLocaleDateString() %></td>
+												<td><%= tbl[i].price %></td>
 												<td>
-													<a href="/placeBid?ctname=<%= tbl[i].ctname%>&startD=<%= tbl[i].start_ts.toLocaleDateString()%>&endD=<%= tbl[i].end_ts.toLocaleDateString()%>&aid=<%= tbl[i].id%>">
+													<a href="/">
 														<button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" >
-															Place Bid
+															Make Payment
 														</button>
 													</a>
 												</td>
@@ -82,47 +79,6 @@
 										</tbody>
 									</table>
 								</div>
-								<nav aria-label="...">
-									<ul class="pagination">
-										<% if(p == 1) { %>
-										<li class="page-item">
-											<a class="page-link" href="/viewPost" tabindex="-1">First</a>
-										</li>
-										<li class="page-item active">
-											<a class="page-link" href="/viewPost?p=1">1 <span class="sr-only">(current)</span></a>
-										</li>
-										<li class="page-item"><a class="page-link" href="/viewPost?p=2">2</a></li>
-										<li class="page-item"><a class="page-link" href="/viewPost?p=3">3</a></li>
-										<li class="page-item">
-											<a class="page-link" href="/viewPost?p=<%= Number(t) %>">Last</a>
-										</li>
-										<% } else if(p == Number(t)) { %>
-										<li class="page-item">
-											<a class="page-link" href="/viewPost" tabindex="-1">First</a>
-										</li>
-										<li class="page-item"><a class="page-link" href="/viewPost?p=<%= Number(t)-2 %>"><%= Number(t)-2 %></a></li>
-										<li class="page-item"><a class="page-link" href="/viewPost?p=<%= Number(t)-1 %>"><%= Number(t)-1 %></a></li>
-										<li class="page-item active">
-											<a class="page-link" href="/viewPost?p=<%= Number(t) %>"><%= Number(t) %> <span class="sr-only">(current)</span></a>
-										</li>
-										<li class="page-item">
-											<a class="page-link" href="/viewPost?p=<%= Number(t) %>">Last</a>
-										</li>
-										<% } else { %>
-										<li class="page-item">
-											<a class="page-link" href="/viewPost" tabindex="-1">First</a>
-										</li>
-										<li class="page-item"><a class="page-link" href="/viewPost?p=<%= Number(p)-1 %>"><%= Number(p)-1 %></a></li>
-										<li class="page-item active">
-											<a class="page-link" href="/viewPost?p=<%= Number(p) %>"><%= Number(p) %> <span class="sr-only">(current)</span></a>
-										</li>
-										<li class="page-item"><a class="page-link" href="/viewPost?p=<%= Number(p)+1 %>"><%= Number(p)+1 %></a></li>
-										<li class="page-item">
-											<a class="page-link" href="/viewPost?p=<%= Number(t) %>">Last</a>
-										</li>
-										<% } %>
-									</ul>
-								</nav>
 							</div>
 						</div>
 
