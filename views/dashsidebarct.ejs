@@ -7,12 +7,17 @@
 		</a>
 	</li>
 	<li class="nav-item">
-		<a class="nav-link <%= page==="my_availabilities" ? "active" : "" %>" href="<%= page==="my_availabilities" ? "#" : "/my_availabilities" %>">
+		<a class="nav-link <%= page==="my_availabilities" ? "active" : "" %>" href="<%= page==="makePost" ? "#" : "/makePost" %>">
 			<i class="fas fa-fw fa-dice"></i>
-			<span>Availabilities</span></a>
+			<span>Post an Availability</span></a>
 	</li>
 	<li class="nav-item">
-		<a class="nav-link <%= page==="plays" ? "active" : "" %>" href="<%= page==="plays" ? "#" : "/plays" %>">
+		<a class="nav-link <%= page==="my_availabilities" ? "active" : "" %>" href="<%= page==="my_availabilities" ? "#" : "/my_availabilities" %>">
+			<i class="fas fa-fw fa-dice"></i>
+			<span>My Availabilities</span></a>
+	</li>
+	<li class="nav-item">
+		<a class="nav-link <%= page==="ctAcceptedBids" ? "active" : "" %>" href="<%= page==="ctAcceptedBids" ? "#" : "/ctAcceptedBids" %>">
 			<i class="fas fa-fw fa-trophy"></i>
 			<span>Accepted Bids</span></a>
 	</li>

@@ -19,7 +19,7 @@
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
-	<title> Be a Caretaker </title>
+	<title> Post Care Taking Availability </title>
 
 </head>
 
@@ -27,16 +27,16 @@
 	<div class="container">
 		<form id="post_form" method="post" class="form-horizontal" role="form" action="makePost">
 			<div class="row justify-content-center">
-				<h2> Make a Post </h2>
+				<h2> Post Care Taking Availability </h2>
 			</div>
 			<div class="row justify-content-center">
 				<div class='col-md-2'>
-					<h4> start date </h4>
+					<h4> Start date </h4>
 				</div>
 				<div class='col-md-5'>
 					<div class="form-group">
 						<div class='input-group date' id='datetimepicker6'>
-							<input type='text' class="form-control" name='datetimepicker6'  id='datetimepicker6'>
+							<input type='text' class="form-control" name='datetimepicker6' id='datetimepicker6'>
 							<span class="input-group-addon">
 								<span class="glyphicon glyphicon-calendar"></span>
 							</span>
@@ -46,12 +46,12 @@
 			</div>
 			<div class="row justify-content-center">
 				<div class='col-md-2'>
-					<h4> end date </h4>
+					<h4> End date </h4>
 				</div>
 				<div class='col-md-5'>
 					<div class="form-group">
 						<div class='input-group date' id='datetimepicker7'>
-							<input type='text' class="form-control" name='datetimepicker7'/>
+							<input type='text' class="form-control" name='datetimepicker7' id='datetimepicker7'>
 							<span class="input-group-addon">
 								<span class="glyphicon glyphicon-calendar"></span>
 							</span>
@@ -60,8 +60,14 @@
 				</div>
 			</div>
 			<div class="row justify-content-center">
-				<button type="submit" class="btn btn-primary btn-block col-md-8">Make a Post for Availability</button>
+				<button type="submit" class="btn btn-primary btn-block col-md-8">Post an Availability</button>
 			</div>
+			<br>
+			<a href="dashboard">
+			<div class="row justify-content-center">
+				<button class="btn btn-primary btn-block col-md-8">Cancel</button>
+			</div>
+			</a>
 		</form>
 	</div>
 	<script>
