@@ -6,15 +6,13 @@ DROP TYPE IF EXISTS service_type CASCADE;
 DROP TABLE IF EXISTS Users CASCADE;
 DROP TABLE IF EXISTS Owners CASCADE;
 DROP TABLE IF EXISTS Caretakers CASCADE;
-DROP TABLE IF EXISTS PetSpecies CASCADE;
-DROP TABLE IF EXISTS WeightClasses CASCADE;
 DROP TABLE IF EXISTS Pets CASCADE;
 DROP TABLE IF EXISTS Chats CASCADE;
 DROP TABLE IF EXISTS Availabilities CASCADE;
-DROP TABLE IF EXISTS ServiceTypes CASCADE;
 DROP TABLE IF EXISTS OfferedCares CASCADE;
 DROP TABLE IF EXISTS Bids CASCADE;
 DROP TABLE IF EXISTS AcceptedBids CASCADE;
+DROP TABLE IF EXISTS Payments CASCADE;
 
 --create some types
 CREATE TYPE gender_type AS ENUM (
@@ -116,11 +114,12 @@ CREATE TABLE OfferedCares (
 
 CREATE TABLE Bids (
 	id INTEGER PRIMARY KEY,
-	availabilityId INTEGER,
+	availabilityId INTEGER NOT NULL,
 	oname VARCHAR(50),
 	ostart_ts TIMESTAMP, --check that this start date is after the Availability's start timestamp
 	oend_ts TIMESTAMP, --check that this end date if before the Availability's end timestamp
 	bidded_price_per_hour NUMERIC(10,2),
+	extra_descriptions VARCHAR(500),
 	FOREIGN KEY (availabilityId) REFERENCES Availabilities(id) ON DELETE CASCADE,
 	FOREIGN KEY (oname) REFERENCES Owners(username) ON DELETE CASCADE,
 	CHECK (ostart_ts <= oend_ts),
@@ -141,7 +140,7 @@ CREATE TABLE AcceptedBids (
 
 --weak entity to acceptedBid
 CREATE TABLE Payments (
-	payment_id SERIAL, 
+	payment_id INTEGER, 
 	id INTEGER, --id of accepted bid
 	value DECIMAL(12,2), --value of payment (positive if from Owner to Caretaker)
 	FOREIGN KEY (id) REFERENCES Bids(id) ON DELETE CASCADE,
@@ -261,56 +260,6 @@ BEFORE INSERT OR UPDATE ON Availabilities
 FOR EACH ROW
 EXECUTE PROCEDURE merge_availability();
 
-/*
---An owner should not make a bid, u and v where u.ostart_ts <= v.oend_ts but u.oend_ts >= v.ostart_ts and o.availabilityId = v.availabilityId. 
---This is an overlap and we will merge these results to create another bid which includes both timeframes.
-CREATE OR REPLACE FUNCTION merge_bids()
-RETURNS TRIGGER AS
-$$
-DECLARE tscursor CURSOR (new_start_ts TIMESTAMP, new_end_ts TIMESTAMP) FOR
-	SELECT *
-	FROM Bids B
- 	WHERE B.ostart_ts <= new_end_ts AND A.oend_ts >= new_start_ts AND A.oname = new.oname AND B.availabilityId = new.availabilityId;
-	final_start_ts TIMESTAMP;
-	final_end_ts TIMESTAMP;
-	bid RECORD;
-BEGIN
-	OPEN tscursor(new_start_ts := new.ostart_ts,	 new_end_ts := new.oend_ts);
-	final_start_ts := new.start_ts;
-	final_end_ts := new.end_ts;
-	--first loop to extract the final start_ts and end_ts.
-	LOOP
-		FETCH tscursor INTO availability;
-		EXIT WHEN NOT FOUND;
-		final_start_ts := LEAST(availability.start_ts, final_start_ts);
-		final_end_ts := GREATEST(availability.end_ts, final_end_ts);
-		raise notice 'a';
-	END LOOP;
-	MOVE BACKWARD ALL FROM tscursor;
-	ALTER TABLE Bids DISABLE TRIGGER ALL; --temporarily disable constraints for Bids so that id can be altered.
-	--second loop to update Bids (which has a foreign reference to Availabilities) and delete entries in Availabilities which are in the overlap.
-	LOOP
-		FETCH tscursor INTO availability;
-		EXIT WHEN NOT FOUND;
-		UPDATE Bids B
-		SET availabilityId = new.id
-		where B.availabilityId = availability.id;
-		DELETE FROM Availabilities A WHERE CURRENT OF tscursor;
-		raise notice 'b';
-	END LOOP;
-	CLOSE tscursor;
-	ALTER TABLE Bids ENABLE TRIGGER ALL; 
-	--finally insert 1 entry into Availability which encompasses all the deleted entries as well as the newest entry.
-	RETURN (new.id, new.ctname, final_start_ts, final_end_ts);
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER merge_trig
-BEFORE INSERT OR UPDATE ON Availabilities
-FOR EACH ROW
-EXECUTE PROCEDURE merge_availability();
-*/
-
 --Due to covering constraint of the ISA relationship, insertion into Users is handled by js-side logic, whereas 
 --deletion from Owners and Caretakers is handled using the following triggers.
 CREATE OR REPLACE FUNCTION delete_ISA()
@@ -404,6 +353,6 @@ VALUES
 -- Accepted Bids
 INSERT INTO AcceptedBids (id, orating, ctrating, ocomments, ctcomments)
 VALUES
-	(2, 5, 5, 'good service', 'cute cat'),
-	(3, 5, 5, 'good service', 'cute dog'),
-	(10, 5, 5, 'good service', 'cuuuuute dog');
+	(2, 1, 1, 'bad service', 'ugly cat'),
+	(3, 5, 5, 'great service', 'cute dog'),
+	(10, 4, 4, 'good service', 'cute cat');
