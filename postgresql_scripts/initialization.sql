@@ -91,7 +91,7 @@ CREATE TABLE Chats (
 );
 		
 CREATE TABLE Availabilities (
-	id SERIAL UNIQUE NOT NULL,
+	id INTEGER UNIQUE NOT NULL,
 	ctname VARCHAR(50), --username of caretaker who advertised this availability
 	start_ts TIMESTAMP,
 	end_ts TIMESTAMP,
@@ -115,7 +115,7 @@ CREATE TABLE OfferedCares (
 
 
 CREATE TABLE Bids (
-	id SERIAL PRIMARY KEY,
+	id INTEGER PRIMARY KEY,
 	availabilityId INTEGER,
 	oname VARCHAR(50),
 	ostart_ts TIMESTAMP, --check that this start date is after the Availability's start timestamp
