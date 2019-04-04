@@ -5,6 +5,7 @@ const express = require('express');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
+const flash = require('connect-flash');
 
 const exphbs = require('express-handlebars')
 const bodyParser = require('body-parser')
@@ -18,6 +19,8 @@ app.use(bodyParser.urlencoded({
   extended: false
 }));
 app.use(bodyParser.json({}));
+
+app.use(flash());
 
 // Authentication Setup
 require('dotenv').load();

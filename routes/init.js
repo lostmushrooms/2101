@@ -29,6 +29,7 @@ function initRouter(app) {
 	app.get('/placedBids', passport.authMiddleware(), placedBids);
 	app.get('/ownerAcceptedBids', passport.authMiddleware(), ownerAcceptedBids);
 	app.get('/pets', passport.authMiddleware(), Pets);
+	app.get('/makePayment', passport.authMiddleware(), makePayment);
 
 	//ct
 	app.get('/makePost' , passport.authMiddleware(), makePost);
@@ -40,6 +41,7 @@ function initRouter(app) {
 	app.post('/placeBid' , passport.authMiddleware(), place_bid);
 	app.post('/acceptBid' , passport.authMiddleware(), accept_bid);
 	app.post('/makePost'   , passport.authMiddleware(), make_post);
+	app.post('/makePayment'   , passport.authMiddleware(), make_payment);
 
 	/* LOGIN */
 	app.post('/login', passport.authenticate('local', {
@@ -106,6 +108,13 @@ function placeBid(req, res, next) {
 		res.redirect('/dashboard');
 	}
 	res.render('placeBid', { page: 'placeBid', auth: true, ctname: req.query.ctname, ctstart: req.query.startD, ctend: req.query.endD, aid: req.query.aid });
+}
+
+function makePayment(req, res, next) {
+	if(req.user.userType != "owner") {
+		res.redirect('/dashboard');
+	}
+	res.render('makePayment', { page: 'makePayment', auth: true, bid: req.query.bid, price: req.query.price});
 }
 
 function viewBids(req, res, next) {
@@ -318,6 +327,33 @@ function make_post(req, res, next) {
 			res.redirect('/makePost?post=fail');
 		} else {
 			res.redirect('/dashboard');
+		}
+	});
+}
+
+function make_payment(req, res, next) {
+	var bid  = req.body.bid;
+	var price  = req.body.price;
+	var rating = req.body.ctRating;
+	var comment = req.body.ocomment;
+	console.log(rating);
+	console.log(comment);
+	console.log(bid);
+	console.log(price);
+	pool.query(sql_query.query.add_payment, [bid,price], (err, data) => {
+		if(err) {
+			req.flash('message', "Error in adding payment");
+			req.session.save(function () {
+				res.redirect('/?pay=fail');
+			});
+		} else {
+			pool.query(sql_query.query.update_acceptedBid_owner, [rating, comment, bid], (err, data) => {
+				if(err) {
+					res.redirect('/?pay=fail');
+				} else {
+					res.redirect('/');
+				}
+			});
 		}
 	});
 }
