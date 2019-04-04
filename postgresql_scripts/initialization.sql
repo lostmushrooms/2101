@@ -91,12 +91,13 @@ CREATE TABLE Chats (
 );
 		
 CREATE TABLE Availabilities (
-	id SERIAL UNIQUE NOT NULL,
+	id INTEGER UNIQUE NOT NULL,
 	ctname VARCHAR(50), --username of caretaker who advertised this availability
 	start_ts TIMESTAMP,
 	end_ts TIMESTAMP,
 	PRIMARY KEY (ctname, start_ts, end_ts),
-	FOREIGN KEY (ctname) REFERENCES Caretakers(username) ON DELETE CASCADE
+	FOREIGN KEY (ctname) REFERENCES Caretakers(username) ON DELETE CASCADE,
+	CHECK (start_ts <= end_ts)
 );
 
 /**
@@ -114,18 +115,16 @@ CREATE TABLE OfferedCares (
 
 
 CREATE TABLE Bids (
-	id SERIAL PRIMARY KEY,
+	id INTEGER PRIMARY KEY,
 	availabilityId INTEGER,
 	oname VARCHAR(50),
-	ctname VARCHAR(50),
-	ctstart_ts TIMESTAMP, 
-	ctend_ts TIMESTAMP, 
 	ostart_ts TIMESTAMP, --check that this start date is after the Availability's start timestamp
 	oend_ts TIMESTAMP, --check that this end date if before the Availability's end timestamp
 	bidded_price_per_hour NUMERIC(10,2),
 	FOREIGN KEY (availabilityId) REFERENCES Availabilities(id) ON DELETE CASCADE,
 	FOREIGN KEY (oname) REFERENCES Owners(username) ON DELETE CASCADE,
-	FOREIGN KEY (ctname, ctstart_ts, ctend_ts) REFERENCES Availabilities(ctname, start_ts, end_ts) ON DELETE CASCADE
+	CHECK (ostart_ts <= oend_ts),
+	CHECK (bidded_price_per_hour >= 0)
 );
 
 CREATE TABLE AcceptedBids (
@@ -135,9 +134,19 @@ CREATE TABLE AcceptedBids (
 	ocomments VARCHAR(2000), --comments that the caretaker gave the owner
 	ctcomments VARCHAR(2000), --comments that the owner gave the caretaker
 	FOREIGN KEY (id) REFERENCES Bids(id) ON DELETE CASCADE,
-	PRIMARY KEY (id)
+	PRIMARY KEY (id),
+	CHECK (1<=orating AND orating <=5),
+	CHECK (1<=ctrating AND ctrating <= 5)
 );
 
+--weak entity to acceptedBid
+CREATE TABLE Payments (
+	payment_id SERIAL, 
+	id INTEGER, --id of accepted bid
+	value DECIMAL(12,2), --value of payment (positive if from Owner to Caretaker)
+	FOREIGN KEY (id) REFERENCES Bids(id) ON DELETE CASCADE,
+	PRIMARY KEY (payment_id, id)
+);
 
 --Triggers
 --Caretaker cannot be Owner.
@@ -182,43 +191,149 @@ ON Owners
 FOR EACH ROW
 EXECUTE PROCEDURE not_caretaker();
 
--- --A care taker should not have any availabilities, u and v where u.start_ts <= v.end_ts but u.end_ts >= v.start_ts. This is an overlap and we will merge these results to create
--- --another availability which includes both timeframes. We will do this by deleting all previous entries which are in this overlap, and finally adding one entry which goes from
--- --the minimum of all the start_ts until the maximum of all the end_ts.
--- CREATE OR REPLACE FUNCTION merge_availability()
--- RETURNS TRIGGER AS
--- $$
--- DECLARE tscursor CURSOR (new_start_ts TIMESTAMP, new_end_ts TIMESTAMP) FOR
--- 	SELECT *
--- 	FROM Availabilities A
--- 	WHERE A.start_ts <= new_end_ts AND A.end_ts >= new_start_ts;
--- 	min_start_ts TIMESTAMP;
--- 	max_end_ts TIMESTAMP;
--- 	availability RECORD;
--- BEGIN
--- 	OPEN tscursor(new_start_ts := new.start_ts,	 new_end_ts := new.end_ts);
--- 	min_start_ts := new.start_ts;
--- 	max_end_ts := new.end_ts;
--- 	--at every iteration we want to keep track of the current minimum start_ts and maximum end_ts, as well as deleting the entry which had been in the overlap.
--- 	LOOP
--- 		FETCH tscursor INTO availability;
--- 		EXIT WHEN NOT FOUND;
--- 		min_start_ts := LEAST(availability.start_ts, min_start_ts);
--- 		max_end_ts := GREATEST(availability.end_ts, max_end_ts);
--- 		DELETE FROM Availabilities A
--- 		where A.ctname = availability.ctname AND A.start_ts = availability.start_ts AND A.end_ts = availability.end_ts;
--- 	END LOOP;
--- 	CLOSE tscursor;
--- 	--finally insert 1 entry into Availability which encompasses all the deleted entries as well as the newest entry.
--- 	INSERT INTO Availabilities VALUES (new.ctname, min_start_ts, max_end_ts);
--- 	RETURN NULL;
--- END;
--- $$ LANGUAGE plpgsql;
+--For Bid table, we need ostart_ts >= referenced availability's start_ts and oend_ts <= referenced availability's end_ts
+CREATE OR REPLACE FUNCTION valid_bid_ts()
+RETURNS TRIGGER AS
+$$
+BEGIN 
+	IF (
+		NEW.ostart_ts < (SELECT start_ts FROM Availabilities A WHERE A.id = new.availabilityId) OR
+		NEW.oend_ts > (SELECT end_ts FROM Availabilities A WHERE A.id = new.availabilityId)
+		) THEN RETURN NULL;
+	ELSE RETURN NEW;
+	END IF;
+END;
+$$ LANGUAGE plpgsql;
 
--- CREATE TRIGGER merge_trig
--- AFTER INSERT OR UPDATE ON Availabilities
--- FOR EACH ROW
--- EXECUTE PROCEDURE merge_availability();
+CREATE TRIGGER valid_bid_ts_trig
+BEFORE INSERT OR UPDATE
+ON Bids
+FOR EACH ROW
+EXECUTE PROCEDURE valid_bid_ts();
+
+
+--A care taker should not have any availabilities, u and v where u.start_ts <= v.end_ts but u.end_ts >= v.start_ts. This is an overlap and we will merge these results to create
+--another availability which includes both timeframes. We will do this by deleting all previous entries which are in this overlap, and finally adding one entry which goes from
+--the minimum of all the start_ts until the maximum of all the end_ts.
+CREATE OR REPLACE FUNCTION merge_availability()
+RETURNS TRIGGER AS
+$$
+DECLARE tscursor CURSOR (new_start_ts TIMESTAMP, new_end_ts TIMESTAMP) FOR
+	SELECT *
+	FROM Availabilities A
+ 	WHERE A.start_ts <= new_end_ts AND A.end_ts >= new_start_ts AND A.ctname = new.ctname;
+	final_start_ts TIMESTAMP;
+	final_end_ts TIMESTAMP;
+	availability RECORD;
+BEGIN
+	OPEN tscursor(new_start_ts := new.start_ts,	 new_end_ts := new.end_ts);
+	final_start_ts := new.start_ts;
+	final_end_ts := new.end_ts;
+	--first loop to extract the final start_ts and end_ts.
+	LOOP
+		FETCH tscursor INTO availability;
+		EXIT WHEN NOT FOUND;
+		final_start_ts := LEAST(availability.start_ts, final_start_ts);
+		final_end_ts := GREATEST(availability.end_ts, final_end_ts);
+		raise notice 'a';
+	END LOOP;
+	MOVE BACKWARD ALL FROM tscursor;
+	ALTER TABLE Bids DISABLE TRIGGER ALL; --temporarily disable constraints for Bids so that id can be altered.
+	--second loop to update Bids (which has a foreign reference to Availabilities) and delete entries in Availabilities which are in the overlap.
+	LOOP
+		FETCH tscursor INTO availability;
+		EXIT WHEN NOT FOUND;
+		UPDATE Bids B
+		SET availabilityId = new.id
+		where B.availabilityId = availability.id;
+		DELETE FROM Availabilities A WHERE CURRENT OF tscursor;
+		raise notice 'b';
+	END LOOP;
+	CLOSE tscursor;
+	ALTER TABLE Bids ENABLE TRIGGER ALL; 
+	--finally insert 1 entry into Availability which encompasses all the deleted entries as well as the newest entry.
+	RETURN (new.id, new.ctname, final_start_ts, final_end_ts);
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER merge_trig
+BEFORE INSERT OR UPDATE ON Availabilities
+FOR EACH ROW
+EXECUTE PROCEDURE merge_availability();
+
+/*
+--An owner should not make a bid, u and v where u.ostart_ts <= v.oend_ts but u.oend_ts >= v.ostart_ts and o.availabilityId = v.availabilityId. 
+--This is an overlap and we will merge these results to create another bid which includes both timeframes.
+CREATE OR REPLACE FUNCTION merge_bids()
+RETURNS TRIGGER AS
+$$
+DECLARE tscursor CURSOR (new_start_ts TIMESTAMP, new_end_ts TIMESTAMP) FOR
+	SELECT *
+	FROM Bids B
+ 	WHERE B.ostart_ts <= new_end_ts AND A.oend_ts >= new_start_ts AND A.oname = new.oname AND B.availabilityId = new.availabilityId;
+	final_start_ts TIMESTAMP;
+	final_end_ts TIMESTAMP;
+	bid RECORD;
+BEGIN
+	OPEN tscursor(new_start_ts := new.ostart_ts,	 new_end_ts := new.oend_ts);
+	final_start_ts := new.start_ts;
+	final_end_ts := new.end_ts;
+	--first loop to extract the final start_ts and end_ts.
+	LOOP
+		FETCH tscursor INTO availability;
+		EXIT WHEN NOT FOUND;
+		final_start_ts := LEAST(availability.start_ts, final_start_ts);
+		final_end_ts := GREATEST(availability.end_ts, final_end_ts);
+		raise notice 'a';
+	END LOOP;
+	MOVE BACKWARD ALL FROM tscursor;
+	ALTER TABLE Bids DISABLE TRIGGER ALL; --temporarily disable constraints for Bids so that id can be altered.
+	--second loop to update Bids (which has a foreign reference to Availabilities) and delete entries in Availabilities which are in the overlap.
+	LOOP
+		FETCH tscursor INTO availability;
+		EXIT WHEN NOT FOUND;
+		UPDATE Bids B
+		SET availabilityId = new.id
+		where B.availabilityId = availability.id;
+		DELETE FROM Availabilities A WHERE CURRENT OF tscursor;
+		raise notice 'b';
+	END LOOP;
+	CLOSE tscursor;
+	ALTER TABLE Bids ENABLE TRIGGER ALL; 
+	--finally insert 1 entry into Availability which encompasses all the deleted entries as well as the newest entry.
+	RETURN (new.id, new.ctname, final_start_ts, final_end_ts);
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER merge_trig
+BEFORE INSERT OR UPDATE ON Availabilities
+FOR EACH ROW
+EXECUTE PROCEDURE merge_availability();
+*/
+
+--Due to covering constraint of the ISA relationship, insertion into Users is handled by js-side logic, whereas 
+--deletion from Owners and Caretakers is handled using the following triggers.
+CREATE OR REPLACE FUNCTION delete_ISA()
+RETURNS TRIGGER AS
+$$
+BEGIN 
+	DELETE FROM Users U
+	where U.username = new.username;
+	RETURN new;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER delete_from_owners
+AFTER DELETE
+ON Owners
+FOR EACH ROW
+EXECUTE PROCEDURE delete_ISA();
+
+CREATE TRIGGER delete_from_caretakers
+AFTER DELETE
+ON Caretakers
+FOR EACH ROW
+EXECUTE PROCEDURE delete_ISA();
 
 ------------------
 --| Dummy Data |--
@@ -264,19 +379,29 @@ VALUES
 	(5, 'Miaaaaa666', to_date('2019-07-20', 'YYYY-MM-DD'), to_date('2019-07-31', 'YYYY-MM-DD'));
 
 -- Bids
-INSERT INTO Bids (id, availabilityId, oname, ctname, ctstart_ts, ctend_ts, ostart_ts, oend_ts, bidded_price_per_hour)
+INSERT INTO Bids (id, availabilityId, oname, ostart_ts, oend_ts, bidded_price_per_hour)
 VALUES
-	(1, 3, 'Miaaaaa97', 'Miaaaaa666', to_date('2019-04-19', 'YYYY-MM-DD'), to_date('2019-05-06', 'YYYY-MM-DD'), to_date('2019-04-20', 'YYYY-MM-DD'), to_date('2019-05-05', 'YYYY-MM-DD'), 20),
-	(2, 3, 'Alice00', 'Miaaaaa666', to_date('2019-04-19', 'YYYY-MM-DD'), to_date('2019-05-06', 'YYYY-MM-DD'), to_date('2019-04-20', 'YYYY-MM-DD'), to_date('2019-05-05', 'YYYY-MM-DD'), 25),
-	(3, 4, 'Miaaaaa97', 'Miaaaaa666', to_date('2019-05-08', 'YYYY-MM-DD'), to_date('2019-06-20', 'YYYY-MM-DD'), to_date('2019-05-08', 'YYYY-MM-DD'), to_date('2019-06-20', 'YYYY-MM-DD'), 20),
-	(4, 4, 'Alice00', 'Miaaaaa666', to_date('2019-05-08', 'YYYY-MM-DD'), to_date('2019-06-20', 'YYYY-MM-DD'), to_date('2019-05-08', 'YYYY-MM-DD'), to_date('2019-06-20', 'YYYY-MM-DD'), 25),
-	(5, 5, 'Miaaaaa97', 'Miaaaaa666', to_date('2019-07-20', 'YYYY-MM-DD'), to_date('2019-07-31', 'YYYY-MM-DD'), to_date('2019-03-31', 'YYYY-MM-DD'), to_date('2019-07-31', 'YYYY-MM-DD'), 20),
-	(6, 5, 'Alice00', 'Miaaaaa666', to_date('2019-07-20', 'YYYY-MM-DD'), to_date('2019-07-31', 'YYYY-MM-DD'), to_date('2019-03-31', 'YYYY-MM-DD'), to_date('2019-07-31', 'YYYY-MM-DD'), 25),
-	(7, 2, 'Miaaaaa97', 'Bob00', to_date('2019-06-02', 'YYYY-MM-DD'), to_date('2019-06-20', 'YYYY-MM-DD'), to_date('2019-05-01', 'YYYY-MM-DD'), to_date('2019-05-05', 'YYYY-MM-DD'), 20),
-	(8, 2, 'Alice00', 'Bob00', to_date('2019-06-02', 'YYYY-MM-DD'), to_date('2019-06-20', 'YYYY-MM-DD'), to_date('2019-05-01', 'YYYY-MM-DD'), to_date('2019-05-05', 'YYYY-MM-DD'), 25),
-	(9, 1, 'Miaaaaa97', 'Bob00', to_date('2019-05-01', 'YYYY-MM-DD'), to_date('2019-05-31', 'YYYY-MM-DD'), to_date('2019-05-01', 'YYYY-MM-DD'), to_date('2019-05-31', 'YYYY-MM-DD'), 20),
-	(10, 1, 'Alice00', 'Bob00', to_date('2019-05-01', 'YYYY-MM-DD'), to_date('2019-05-31', 'YYYY-MM-DD'), to_date('2019-05-01', 'YYYY-MM-DD'), to_date('2019-05-31', 'YYYY-MM-DD'), 25);
+	(1, 3, 'Miaaaaa97', to_date('2019-04-20', 'YYYY-MM-DD'), to_date('2019-05-05', 'YYYY-MM-DD'), 20),
+	(2, 3, 'Alice00', to_date('2019-04-20', 'YYYY-MM-DD'), to_date('2019-05-05', 'YYYY-MM-DD'), 25),
+	(3, 4, 'Miaaaaa97', to_date('2019-05-08', 'YYYY-MM-DD'), to_date('2019-06-20', 'YYYY-MM-DD'), 20),
+	(4, 4, 'Alice00', to_date('2019-05-08', 'YYYY-MM-DD'), to_date('2019-06-20', 'YYYY-MM-DD'), 25),
+	(5, 5, 'Miaaaaa97', to_date('2019-03-31', 'YYYY-MM-DD'), to_date('2019-07-31', 'YYYY-MM-DD'), 20),
+	(6, 5, 'Alice00', to_date('2019-03-31', 'YYYY-MM-DD'), to_date('2019-07-31', 'YYYY-MM-DD'), 25),
+	(7, 2, 'Miaaaaa97', to_date('2019-05-01', 'YYYY-MM-DD'), to_date('2019-05-05', 'YYYY-MM-DD'), 20),
+	(8, 2, 'Alice00',to_date('2019-05-01', 'YYYY-MM-DD'), to_date('2019-05-05', 'YYYY-MM-DD'), 25),
+	(9, 1, 'Miaaaaa97', to_date('2019-05-01', 'YYYY-MM-DD'), to_date('2019-05-31', 'YYYY-MM-DD'), 20),
+	(10, 1, 'Alice00', to_date('2019-05-01', 'YYYY-MM-DD'), to_date('2019-05-31', 'YYYY-MM-DD'), 25);
+		
+--check if merge trigger works
 
+INSERT INTO Availabilities (id, ctname, start_ts, end_ts) 
+VALUES
+	(6,'Miaaaaa666', to_date('2018-05-15', 'YYYY-MM-DD'), to_date('2019-08-21', 'YYYY-MM-DD')),
+	(7,'Miaaaaa666', to_date('2019-09-06', 'YYYY-MM-DD'), to_date('2019-09-26', 'YYYY-MM-DD')),
+	(8,'Miaaaaa666', to_date('2019-09-05', 'YYYY-MM-DD'), to_date('2019-09-15', 'YYYY-MM-DD'))
+	;	
+
+/*
 -- Accepted Bids
 INSERT INTO AcceptedBids (id, orating, ctrating, ocomments, ctcomments)
 VALUES
@@ -284,3 +409,4 @@ VALUES
 	(3, 5, 5, 'good service', 'cute dog'),
 	(7, 5, 5, 'good service', 'cuuuuute cat'),
 	(10, 5, 5, 'good service', 'cuuuuute dog');
+*/

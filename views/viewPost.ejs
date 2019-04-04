@@ -71,7 +71,7 @@
 												<td><%= tbl[i].start_ts.toLocaleDateString()%></td>
 												<td><%= tbl[i].end_ts.toLocaleDateString()%></td>
 												<td>
-													<a href="/placeBid?ctname=<%= tbl[i].ctname%>&startD=<%= tbl[i].start_ts.toLocaleDateString()%>&endD=<%= tbl[i].end_ts.toLocaleDateString()%>">
+													<a href="/placeBid?ctname=<%= tbl[i].ctname%>&startD=<%= tbl[i].start_ts.toLocaleDateString()%>&endD=<%= tbl[i].end_ts.toLocaleDateString()%>&aid=<%= tbl[i].id%>">
 														<button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" >
 															Place Bid
 														</button>

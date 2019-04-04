@@ -20,19 +20,19 @@ function check(event) {
 		return false;
 	}
 	if(start >= end) {
-		alert("You must select a valid date range");
+		alert("Start date should be earlier then end date");
 		event.preventDefault();
 		event.stopPropagation();
 		return false;
 	}
-	if(ctstart < start) {
-		alert("You must select a valid date range");
+	if(ctstart > start) {
+		alert("Your start date should be same or later than the available start date posted by caretaker");
 		event.preventDefault();
 		event.stopPropagation();
 		return false;
 	}
-	if(ctend > end) {
-		alert("You must select a valid date range");
+	if(ctend < end) {
+		alert("Your end date should be same or earlier than the end start date posted by caretaker");
 		event.preventDefault();
 		event.stopPropagation();
 		return false;
