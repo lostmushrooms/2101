@@ -26,6 +26,8 @@ function initRouter(app) {
 	app.get('/placeBid' , passport.authMiddleware(), placeBid);
 	app.get('/my_availabilities', passport.authMiddleware(), my_availabilities);
 	app.get('/viewBids', passport.authMiddleware(), viewBids);
+	app.get('/placedBids', passport.authMiddleware(), placedBids);
+	app.get('/ownerAcceptedBids', passport.authMiddleware(), ownerAcceptedBids);
 	
 	/* PROTECTED POST */
 	app.post('/register'   , passport.antiMiddleware(), reg_user);
@@ -164,6 +166,48 @@ function viewPost(req, res, next) {
 				basic(req, res, 'viewPost', { page: 'viewPost', auth: true, tbl: tbl, ctx: ctx, p: idx+1, t: total });
 			}
 		});
+	});
+}
+
+function placedBids(req, res, next) {
+	if(req.user.userType != "owner") {
+		res.redirect('dashboard');
+	}
+	var tbl;
+	pool.query(sql_query.query.placed_bids, [req.user.username], (err, data) => {
+		var id = null;
+		var row = data.rows[0];
+		if (row) {
+			id = row.id;
+		}
+		console.log(data.rows[0]);
+		if(err || !data.rows || data.rows.length == 0) {
+			tbl = [];
+		} else {
+			tbl = data.rows;
+		}
+		basic(req, res, 'placedBids', { tbl: tbl, auth: true, p: 1});
+	});
+}
+
+function ownerAcceptedBids(req, res, next) {
+	if(req.user.userType != "owner") {
+		res.redirect('dashboard');
+	}
+	var tbl;
+	pool.query(sql_query.query.owner_accepted_bids, [req.user.username], (err, data) => {
+		var id = null;
+		var row = data.rows[0];
+		if (row) {
+			id = row.id;
+		}
+		console.log(data.rows[0]);
+		if(err || !data.rows || data.rows.length == 0) {
+			tbl = [];
+		} else {
+			tbl = data.rows;
+		}
+		basic(req, res, 'ownerAcceptedBids', { tbl: tbl, auth: true});
 	});
 }
 
