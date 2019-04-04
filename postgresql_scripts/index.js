@@ -10,6 +10,10 @@ sql.query = {
 	// Caretakers
 	my_avail: 'SELECT * FROM Availabilities WHERE ctname=$1 ORDER BY start_ts ASC',
 	single_avail_bids: 'SELECT * FROM Bids WHERE availabilityId=$1 and id not in (SELECT id from AcceptedBids)',
+
+	// Owners
+	placed_bids: 'SELECT Availabilities.ctname as ctname, Bids.ostart_ts as start, Bids.oend_ts as end, Bids.bidded_price_per_hour as bidded_price_per_hour FROM Availabilities inner join Bids on Availabilities.id = Bids.availabilityId WHERE Bids.oname = $1',
+	owner_accepted_bids: 'SELECT Availabilities.ctname as ctname, Bids.ostart_ts as start, Bids.oend_ts as end, Bids.bidded_price_per_hour as price FROM Availabilities inner join Bids on Availabilities.id = Bids.availabilityId WHERE Bids.oname = $1 and Bids.id in (SELECT id FROM AcceptedBids)',
 	
 	// Insertion
 	add_user: 'INSERT INTO Users (username, password, email, phone_number) VALUES ($1,$2,$3,$4)',
