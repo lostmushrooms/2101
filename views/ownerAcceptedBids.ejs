@@ -68,7 +68,7 @@
 												<td><%= tbl[i].end.toLocaleDateString() %></td>
 												<td><%= tbl[i].price %></td>
 												<td>
-													<a href="/">
+													<a href="/makePayment?bid=<%= tbl[i].id%>&price=<%=tbl[i].price%>">
 														<button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" >
 															Make Payment
 														</button>
