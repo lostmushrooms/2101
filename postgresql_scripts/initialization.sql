@@ -141,7 +141,7 @@ CREATE TABLE AcceptedBids (
 
 --weak entity to acceptedBid
 CREATE TABLE Payments (
-	payment_id SERIAL, 
+	payment_id INTEGER NOT NULL, 
 	id INTEGER, --id of accepted bid
 	value DECIMAL(12,2), --value of payment (positive if from Owner to Caretaker)
 	FOREIGN KEY (id) REFERENCES Bids(id) ON DELETE CASCADE,
