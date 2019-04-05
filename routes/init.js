@@ -42,6 +42,10 @@ function initRouter(app) {
 	app.post('/acceptBid' , passport.authMiddleware(), accept_bid);
 	app.post('/makePost'   , passport.authMiddleware(), make_post);
 	app.post('/makePayment'   , passport.authMiddleware(), make_payment);
+	app.post('/filterByName'   , passport.authMiddleware(), search_ct);
+	app.post('/filterByDate'   , passport.authMiddleware(), search_date);
+	app.post('/cleanFilter'   , passport.authMiddleware(), clean_filter);
+
 
 	/* LOGIN */
 	app.post('/login', passport.authenticate('local', {
@@ -181,6 +185,61 @@ function viewPost(req, res, next) {
 	if(Object.keys(req.query).length > 0 && req.query.p) {
 		idx = req.query.p-1;
 	}
+	if (req.query.dstart && req.query.dend) {
+		console.log(req.query.dstart);
+		console.log(req.query.dend);
+		var start = new Date(req.query.dstart);
+		var end = new Date(req.query.dend);
+
+		pool.query(sql_query.query.page_lims_time, [start, end, idx*10], (err, data) => {
+			if(err || !data.rows || data.rows.length == 0) {
+				console.log(err);
+				tbl = [];
+			} else {
+				console.log(data.rows);
+				tbl = data.rows;
+			}
+			pool.query(sql_query.query.ctx_posts_time, [req.query.dstart, req.query.dend], (err, data) => {
+				if(err || !data.rows || data.rows.length == 0) {
+					ctx = 0;
+				} else {
+					ctx = data.rows[0].count;
+				}
+				total = ctx%10 == 0 ? ctx/10 : (ctx - (ctx%10))/10 + 1;
+				console.log(idx*10, idx*10+10, total);
+				if(req.user.userType != "owner") {
+					res.redirect('/dashboard');
+				} else {
+					basic(req, res, 'viewPost', { page: 'viewPost', auth: true, tbl: tbl, ctx: ctx, p: idx+1, t: total, ctname: req.query.ctname });
+				}
+			});
+		});
+		return;
+	}
+	if (req.query.ctname) {
+		pool.query(sql_query.query.page_lims_name, [req.query.ctname, idx*10], (err, data) => {
+			if(err || !data.rows || data.rows.length == 0) {
+				tbl = [];
+			} else {
+				tbl = data.rows;
+			}
+			pool.query(sql_query.query.ctx_posts_name, [req.query.ctname], (err, data) => {
+				if(err || !data.rows || data.rows.length == 0) {
+					ctx = 0;
+				} else {
+					ctx = data.rows[0].count;
+				}
+				total = ctx%10 == 0 ? ctx/10 : (ctx - (ctx%10))/10 + 1;
+				console.log(idx*10, idx*10+10, total);
+				if(req.user.userType != "owner") {
+					res.redirect('/dashboard');
+				} else {
+					basic(req, res, 'viewPost', { page: 'viewPost', auth: true, tbl: tbl, ctx: ctx, p: idx+1, t: total, ctname: req.query.ctname });
+				}
+			});
+		});
+		return;
+	}
 	pool.query(sql_query.query.page_lims, [idx*10], (err, data) => {
 		if(err || !data.rows || data.rows.length == 0) {
 			tbl = [];
@@ -196,13 +255,26 @@ function viewPost(req, res, next) {
 			total = ctx%10 == 0 ? ctx/10 : (ctx - (ctx%10))/10 + 1;
 			console.log(idx*10, idx*10+10, total);
 			if(req.user.userType != "owner") {
-				console.log(req.user);
 				res.redirect('/dashboard');
 			} else {
 				basic(req, res, 'viewPost', { page: 'viewPost', auth: true, tbl: tbl, ctx: ctx, p: idx+1, t: total });
 			}
 		});
 	});
+}
+
+function search_ct(req, res, next) {
+	res.redirect('/viewPost?ctname='+req.body.ctname);
+}
+
+function search_date(req, res, next) {
+	var start  = req.body.datetimepicker6;
+	var end  = req.body.datetimepicker7;
+	res.redirect('/viewPost?dstart='+start+'&dend='+end);
+}
+
+function clean_filter(req, res, next) {
+	res.redirect('/viewPost');
 }
 
 function placedBids(req, res, next) {
