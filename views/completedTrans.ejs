@@ -55,7 +55,7 @@
 									<table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
 										<thead>
 											<tr>
-												<th>Caretaker Name</th>
+												<th>Owner Name</th>
 												<th>Start Date</th>
 												<th>End Date</th>
 												<th>Price</th>
@@ -65,7 +65,7 @@
 										<tbody>
 											<% for(var i=0; i<tbl.length; i++) { %>
 											<tr>
-												<td><%= tbl[i].ctname %></td>
+												<td><%= tbl[i].oname %></td>
 												<td><%= tbl[i].start.toLocaleDateString() %></td>
 												<td><%= tbl[i].end.toLocaleDateString() %></td>
 												<td><%= tbl[i].price %></td>
