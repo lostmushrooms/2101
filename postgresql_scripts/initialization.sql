@@ -225,7 +225,7 @@ DECLARE datecursor CURSOR (new_start_date DATE, new_end_date DATE) FOR
 	final_end_date DATE;
 	availability RECORD;
 BEGIN
-	OPEN datecursor(new_start_date := new.start_date,	 new_end_date := new.end_date);
+	OPEN datecursor(new_start_date := new.start_date, new_end_date := new.end_date);
 	final_start_date := new.start_date;
 	final_end_date := new.end_date;
 	--first loop to extract the final start_date and end_date.
