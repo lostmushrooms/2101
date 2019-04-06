@@ -15,6 +15,7 @@ sql.query = {
 	my_avail: 'SELECT * FROM Availabilities WHERE ctname=$1 ORDER BY start_date ASC',
 	single_avail_bids: 'SELECT * FROM Bids WHERE availabilityId=$1 and id not in (SELECT id from AcceptedBids)',
 	ct_accepted_bids: 'SELECT Bids.id as id, Bids.oname as oname, Bids.ostart_date as start, Bids.oend_date as end, Bids.bidded_price_per_hour as price FROM Availabilities inner join Bids on Availabilities.id = Bids.availabilityId WHERE Availabilities.ctname = $1 and Bids.id in (SELECT id FROM AcceptedBids)',
+	completed_trans: 'SELECT Bids.id as id, Bids.oname as oname, Bids.ostart_date as start, Bids.oend_date as end, Bids.bidded_price_per_hour as price FROM Availabilities inner join Bids on Availabilities.id = Bids.availabilityId WHERE Availabilities.ctname = $1 and Bids.id in (SELECT id FROM Payments)',
 
 
 	// Owners

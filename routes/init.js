@@ -35,6 +35,7 @@ function initRouter(app) {
 	app.get('/makePost' , passport.authMiddleware(), makePost);
 	app.get('/my_availabilities', passport.authMiddleware(), my_availabilities);
 	app.get('/ctAcceptedBids', passport.authMiddleware(), ctAcceptedBids);
+	app.get('/completedTrans', passport.authMiddleware(), completedTrans);
 	
 	/* PROTECTED POST */
 	app.post('/register'   , passport.antiMiddleware(), reg_user);
@@ -337,6 +338,28 @@ function ctAcceptedBids(req, res, next) {
 			tbl = data.rows;
 		}
 		basic(req, res, 'ctAcceptedBids', { tbl: tbl, auth: true});
+	});
+}
+
+
+function completedTrans(req, res, next) {
+	if(req.user.userType != "careTaker") {
+		res.redirect('dashboard');
+	}
+	var tbl;
+	pool.query(sql_query.query.completed_trans, [req.user.username], (err, data) => {
+		var id = null;
+		var row = data.rows[0];
+		if (row) {
+			id = row.id;
+		}
+		console.log(data.rows[0]);
+		if(err || !data.rows || data.rows.length == 0) {
+			tbl = [];
+		} else {
+			tbl = data.rows;
+		}
+		basic(req, res, 'completedTrans', { tbl: tbl, auth: true});
 	});
 }
 
