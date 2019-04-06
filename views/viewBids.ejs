@@ -53,8 +53,8 @@
 									<tr>
 										<td><%= i %></td>
 										<td><%= tbl[i - 1].oname%></td>
-										<td><%= tbl[i - 1].ostart_ts.toLocaleDateString()%></td>
-										<td><%= tbl[i - 1].oend_ts.toLocaleDateString()%></td>
+										<td><%= tbl[i - 1].ostart_date.toLocaleDateString()%></td>
+										<td><%= tbl[i - 1].oend_date.toLocaleDateString()%></td>
 										<td><%= tbl[i - 1].bidded_price_per_hour%></td>
 										<td>
 											<form id="acceptBid" method="post" role="form" action="acceptBid">
