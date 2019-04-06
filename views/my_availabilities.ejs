@@ -51,8 +51,8 @@
 										<% for(var i=1; i <= tbl.length; i++) { %>
 										<tr>
 											<td><%= i %></td>
-											<td><%= tbl[i - 1].start_ts.toLocaleDateString()%></td>
-											<td><%= tbl[i - 1].end_ts.toLocaleDateString()%></td>
+											<td><%= tbl[i - 1].start_date.toLocaleDateString()%></td>
+											<td><%= tbl[i - 1].end_date.toLocaleDateString()%></td>
 											<td>
 												<a href="/viewBids?aid=<%= tbl[i - 1].id %>">
 													<button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" >
