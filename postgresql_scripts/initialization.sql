@@ -89,11 +89,11 @@ CREATE TABLE Chats (
 );
 		
 CREATE TABLE Availabilities (
-	id INTEGER UNIQUE NOT NULL,
+	id INTEGER PRIMARY KEY,
 	ctname VARCHAR(50), --username of caretaker who advertised this availability
 	start_date DATE,
 	end_date DATE,
-	PRIMARY KEY (ctname, start_date, end_date),
+	is_opened BOOL NOT NULL DEFAULT True,
 	FOREIGN KEY (ctname) REFERENCES Caretakers(username) ON DELETE CASCADE,
 	CHECK (start_date <= end_date)
 );
@@ -190,75 +190,50 @@ ON Owners
 FOR EACH ROW
 EXECUTE PROCEDURE not_caretaker();
 
---For Bid table, we need ostart_date >= referenced availability's start_date and oend_date <= referenced availability's end_date
-CREATE OR REPLACE FUNCTION valid_bid_date()
+--For Availabilities table, for any particular user, we need to prevent overlapping open availabilities. 
+CREATE OR REPLACE FUNCTION valid_availability()
 RETURNS TRIGGER AS
 $$
 BEGIN 
-	IF (
-		NEW.ostart_date < (SELECT start_date FROM Availabilities A WHERE A.id = new.availabilityId) OR
-		NEW.oend_date > (SELECT end_date FROM Availabilities A WHERE A.id = new.availabilityId)
-		) THEN RETURN NULL;
+	IF EXISTS (
+		SELECT 1
+		FROM Availabilities A
+		WHERE A.ctname = NEW.ctname AND A.start_date <= NEW.end_date AND A.end_date >= NEW.start_date AND A.is_opened = True
+	) THEN RETURN NULL;
 	ELSE RETURN NEW;
 	END IF;
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER valid_bid_date_trig
+CREATE TRIGGER valid_availability_trig
 BEFORE INSERT OR UPDATE
-ON Bids
+ON Availabilities
 FOR EACH ROW
-EXECUTE PROCEDURE valid_bid_date();
+EXECUTE PROCEDURE valid_availability();
 
-
---A care taker should not have any availabilities, u and v where u.start_date <= v.end_date but u.end_date >= v.start_date. This is an overlap and we will merge these results to create
---another availability which includes both timeframes. We will do this by deleting all previous entries which are in this overlap, and finally adding one entry which goes from
---the minimum of all the start_date until the maximum of all the end_date.
-CREATE OR REPLACE FUNCTION merge_availability()
+--For Bid table, we need ostart_date >= referenced availability's start_date and oend_date <= referenced availability's end_date, and the referenced availability needs to be open.
+CREATE OR REPLACE FUNCTION valid_bid()
 RETURNS TRIGGER AS
 $$
-DECLARE datecursor CURSOR (new_start_date DATE, new_end_date DATE) FOR
-	SELECT *
-	FROM Availabilities A
- 	WHERE A.start_date <= new_end_date AND A.end_date >= new_start_date AND A.ctname = new.ctname;
-	final_start_date DATE;
-	final_end_date DATE;
-	availability RECORD;
-BEGIN
-	OPEN datecursor(new_start_date := new.start_date,	 new_end_date := new.end_date);
-	final_start_date := new.start_date;
-	final_end_date := new.end_date;
-	--first loop to extract the final start_date and end_date.
-	LOOP
-		FETCH datecursor INTO availability;
-		EXIT WHEN NOT FOUND;
-		final_start_date := LEAST(availability.start_date, final_start_date);
-		final_end_date := GREATEST(availability.end_date, final_end_date);
-		raise notice 'a';
-	END LOOP;
-	MOVE BACKWARD ALL FROM datecursor;
-	ALTER TABLE Bids DISABLE TRIGGER ALL; --temporarily disable constraindate for Bids so that id can be altered.
-	--second loop to update Bids (which has a foreign reference to Availabilities) and delete entries in Availabilities which are in the overlap.
-	LOOP
-		FETCH datecursor INTO availability;
-		EXIT WHEN NOT FOUND;
-		UPDATE Bids B
-		SET availabilityId = new.id
-		where B.availabilityId = availability.id;
-		DELETE FROM Availabilities A WHERE CURRENT OF datecursor;
-		raise notice 'b';
-	END LOOP;
-	CLOSE datecursor;
-	ALTER TABLE Bids ENABLE TRIGGER ALL; 
-	--finally insert 1 entry into Availability which encompasses all the deleted entries as well as the newest entry.
-	RETURN (new.id, new.ctname, final_start_date, final_end_date);
+DECLARE avail Availabilities%ROWTYPE;
+BEGIN 
+	SELECT * INTO avail FROM Availabilities A WHERE A.id = new.availabilityId; 
+	IF (
+		NEW.ostart_date < avail.start_date OR
+		NEW.oend_date > avail.end_date OR
+		avail.is_opened = False
+		)THEN RETURN NULL;
+	ELSE RETURN NEW;
+	END IF;
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER merge_trig
-BEFORE INSERT OR UPDATE ON Availabilities
+CREATE TRIGGER valid_bid_trig
+BEFORE INSERT OR UPDATE
+ON Bids
 FOR EACH ROW
-EXECUTE PROCEDURE merge_availability();
+EXECUTE PROCEDURE valid_bid();
+
 
 --Due to covering constraint of the ISA relationship, insertion into Users is handled by js-side logic, whereas 
 --deletion from Owners and Caretakers is handled using the following triggers.
@@ -327,6 +302,7 @@ VALUES
 	(4, 'Miaaaaa666', to_date('2019-05-08', 'YYYY-MM-DD'), to_date('2019-06-20', 'YYYY-MM-DD')),
 	(5, 'Miaaaaa666', to_date('2019-07-20', 'YYYY-MM-DD'), to_date('2019-07-31', 'YYYY-MM-DD'));
 
+
 -- Bids
 INSERT INTO Bids (id, availabilityId, oname, ostart_date, oend_date, bidded_price_per_hour)
 VALUES
@@ -341,7 +317,6 @@ VALUES
 	(9, 1, 'Miaaaaa97', to_date('2019-05-01', 'YYYY-MM-DD'), to_date('2019-05-31', 'YYYY-MM-DD'), 20),
 	(10, 1, 'Alice00', to_date('2019-05-01', 'YYYY-MM-DD'), to_date('2019-05-31', 'YYYY-MM-DD'), 25);
 		
---check if merge trigger works
 
 INSERT INTO Availabilities (id, ctname, start_date, end_date) 
 VALUES
