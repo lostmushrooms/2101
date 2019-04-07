@@ -332,3 +332,12 @@ VALUES
 	(2, 1, 1, 'bad service', 'ugly cat'),
 	(3, 5, 5, 'great service', 'cute dog'),
 	(10, 4, 4, 'good service', 'cute cat');
+
+-- Care Offered
+INSERT INTO OfferedCares (ctname, species, weight_class, service, extra_descriptions)
+VALUES
+	('Miaaaaa666', 'cat', 'medium', 'daycare', '...'),
+	('Miaaaaa666', 'dog', 'large', 'daycare', '...'),
+	('Miaaaaa666', 'cat', 'medium', 'petsitting', '...'),
+	('Bob00', 'dog', 'medium', 'daycare', '...'),
+	('Bob00', 'cat', 'small', 'petsitting', '...');

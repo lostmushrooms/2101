@@ -52,7 +52,11 @@
 									<% for(var i=1; i <= tbl.length; i++) { %>
 									<tr>
 										<td><%= i %></td>
-										<td><%= tbl[i - 1].oname%></td>
+										<td>
+											<a href="/ownerProfile?oname=<%= tbl[i - 1].oname%>">
+												<%= tbl[i - 1].oname%>
+											</a>
+										</td>
 										<td><%= tbl[i - 1].ostart_date.toLocaleDateString()%></td>
 										<td><%= tbl[i - 1].oend_date.toLocaleDateString()%></td>
 										<td><%= tbl[i - 1].bidded_price_per_hour%></td>

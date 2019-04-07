@@ -16,12 +16,16 @@ sql.query = {
 	single_avail_bids: 'SELECT * FROM Bids WHERE availabilityId=$1 and id not in (SELECT id from AcceptedBids)',
 	ct_accepted_bids: 'SELECT Bids.id as id, Bids.oname as oname, Bids.ostart_date as start, Bids.oend_date as end, Bids.bidded_price_per_hour as price FROM Availabilities inner join Bids on Availabilities.id = Bids.availabilityId WHERE Availabilities.ctname = $1 and Bids.id in (SELECT id FROM AcceptedBids)',
 	completed_trans: 'SELECT Bids.id as id, Bids.oname as oname, Bids.ostart_date as start, Bids.oend_date as end, Bids.bidded_price_per_hour as price FROM Availabilities inner join Bids on Availabilities.id = Bids.availabilityId WHERE Availabilities.ctname = $1 and Bids.id in (SELECT id FROM Payments) and NOT EXIST (SELECT A.orating from AcceptedBids A WHERE A.id=Bids.id)',
+	owner_pets: 'SELECT * FROM Pets WHERE oname=$1',
+	owner_comments: 'SELECT Availabilities.ctname as ctname, Bids.oend_date as date, AcceptedBids.ctrating as rating, AcceptedBids.ctcomments as comment FROM Bids inner join AcceptedBids on Bids.id = AcceptedBids.id inner join Availabilities on Bids.availabilityId = Availabilities.id WHERE Bids.oname=$1',
 
 
 	// Owners
 	placed_bids: 'SELECT Availabilities.ctname as ctname, Bids.ostart_date as start, Bids.oend_date as end, Bids.bidded_price_per_hour as bidded_price_per_hour FROM Availabilities inner join Bids on Availabilities.id = Bids.availabilityId WHERE Bids.oname = $1',
 	owner_accepted_bids: 'SELECT Bids.id as id, Availabilities.ctname as ctname, Bids.ostart_date as start, Bids.oend_date as end, Bids.bidded_price_per_hour as price FROM Availabilities inner join Bids on Availabilities.id = Bids.availabilityId WHERE Bids.oname = $1 and Bids.id in (SELECT id FROM AcceptedBids) and Bids.id not in (SELECT id from Payments)',
 	owner_pets: 'SELECT pname, gender, species, weight_class FROM Pets where oname=$1',
+	ct_care: 'SELECT * FROM OfferedCares WHERE ctname=$1',
+	ct_comments: 'SELECT Bids.oname as oname, Bids.oend_date as date, AcceptedBids.orating as rating, AcceptedBids.ocomments as comment FROM Bids inner join AcceptedBids on Bids.id = AcceptedBids.id inner join Availabilities on Bids.availabilityId = Availabilities.id WHERE Availabilities.ctname=$1',
 	
 	// Insertion
 	add_user: 'INSERT INTO Users (username, password, email, phone_number) VALUES ($1,$2,$3,$4)',
