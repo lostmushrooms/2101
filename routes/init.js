@@ -30,6 +30,7 @@ function initRouter(app) {
 	app.get('/ownerAcceptedBids', passport.authMiddleware(), ownerAcceptedBids);
 	app.get('/pets', passport.authMiddleware(), Pets);
 	app.get('/makePayment', passport.authMiddleware(), makePayment);
+	app.get('/makeRating', passport.authMiddleware(), makeRating);
 
 	//ct
 	app.get('/makePost' , passport.authMiddleware(), makePost);
@@ -43,9 +44,11 @@ function initRouter(app) {
 	app.post('/acceptBid' , passport.authMiddleware(), accept_bid);
 	app.post('/makePost'   , passport.authMiddleware(), make_post);
 	app.post('/makePayment'   , passport.authMiddleware(), make_payment);
+	app.post('/makeRating'   , passport.authMiddleware(), make_rating);
 	app.post('/filterByName'   , passport.authMiddleware(), search_ct);
 	app.post('/filterByDate'   , passport.authMiddleware(), search_date);
 	app.post('/cleanFilter'   , passport.authMiddleware(), clean_filter);
+	app.post('/closePost'   , passport.authMiddleware(), close_post);
 
 
 	/* LOGIN */
@@ -122,6 +125,13 @@ function makePayment(req, res, next) {
 	res.render('makePayment', { page: 'makePayment', auth: true, bid: req.query.bid, price: req.query.price});
 }
 
+function makeRating(req, res, next) {
+	if(req.user.userType != "careTaker") {
+		res.redirect('/dashboard');
+	}
+	res.render('makeRating', { page: 'makeRating', auth: true, bid: req.query.bid, price: req.query.price});
+}
+
 function viewBids(req, res, next) {
 	if(req.user.userType != "careTaker") {
 		res.redirect('dashboard');
@@ -129,15 +139,15 @@ function viewBids(req, res, next) {
 	var ctx = 0, tbl;
 	pool.query(sql_query.query.single_avail_bids, [req.query.aid], (err, data) => {
 		var id = null;
-		var row = data.rows[0];
-		if (row) {
-			id = row.id;
-		}
-		console.log(data.rows[0]);
+		var row = null;
 		if(err || !data.rows || data.rows.length == 0) {
 			ctx = 0;
 			tbl = [];
 		} else {
+			row = data.rows[0];
+			if (row) {
+				id = row.id;
+			}
 			ctx = data.rows.length;
 			tbl = data.rows;
 		}
@@ -152,14 +162,14 @@ function Pets(req, res, next) {
 	var tbl;
 	pool.query(sql_query.query.owner_pets, [req.user.username], (err, data) => {
 		var id = null;
-		var row = data.rows[0];
-		if (row) {
-			id = row.id;
-		}
-		console.log(data.rows[0]);
+		var row = null;
 		if(err || !data.rows || data.rows.length == 0) {
 			tbl = [];
 		} else {
+			row = data.rows[0];
+			if (row) {
+				id = row.id;
+			}
 			tbl = data.rows;
 		}
 		basic(req, res, 'Pets', { tbl: tbl, auth: true, bid: id});
@@ -285,14 +295,14 @@ function placedBids(req, res, next) {
 	var tbl;
 	pool.query(sql_query.query.placed_bids, [req.user.username], (err, data) => {
 		var id = null;
-		var row = data.rows[0];
-		if (row) {
-			id = row.id;
-		}
-		console.log(data.rows[0]);
+		var row = null;
 		if(err || !data.rows || data.rows.length == 0) {
 			tbl = [];
 		} else {
+			row = data.rows[0];
+			if (row) {
+				id = row.id;
+			}
 			tbl = data.rows;
 		}
 		basic(req, res, 'placedBids', { tbl: tbl, auth: true, p: 1});
@@ -306,14 +316,14 @@ function ownerAcceptedBids(req, res, next) {
 	var tbl;
 	pool.query(sql_query.query.owner_accepted_bids, [req.user.username], (err, data) => {
 		var id = null;
-		var row = data.rows[0];
-		if (row) {
-			id = row.id;
-		}
-		console.log(data.rows[0]);
+		var row = null;
 		if(err || !data.rows || data.rows.length == 0) {
 			tbl = [];
 		} else {
+			row = data.rows[0];
+			if (row) {
+				id = row.id;
+			}
 			tbl = data.rows;
 		}
 		basic(req, res, 'ownerAcceptedBids', { tbl: tbl, auth: true});
@@ -327,14 +337,14 @@ function ctAcceptedBids(req, res, next) {
 	var tbl;
 	pool.query(sql_query.query.ct_accepted_bids, [req.user.username], (err, data) => {
 		var id = null;
-		var row = data.rows[0];
-		if (row) {
-			id = row.id;
-		}
-		console.log(data.rows[0]);
+		var row = null;
 		if(err || !data.rows || data.rows.length == 0) {
 			tbl = [];
 		} else {
+			row = data.rows[0];
+			if (row) {
+				id = row.id;
+			}
 			tbl = data.rows;
 		}
 		basic(req, res, 'ctAcceptedBids', { tbl: tbl, auth: true});
@@ -349,14 +359,15 @@ function completedTrans(req, res, next) {
 	var tbl;
 	pool.query(sql_query.query.completed_trans, [req.user.username], (err, data) => {
 		var id = null;
-		var row = data.rows[0];
-		if (row) {
-			id = row.id;
-		}
-		console.log(data.rows[0]);
+		var row = null;
+
 		if(err || !data.rows || data.rows.length == 0) {
 			tbl = [];
 		} else {
+			row = data.rows[0];
+			if (row) {
+				id = row.id;
+			}
 			tbl = data.rows;
 		}
 		basic(req, res, 'completedTrans', { tbl: tbl, auth: true});
@@ -453,6 +464,19 @@ function make_payment(req, res, next) {
 	});
 }
 
+function make_rating(req, res, next) {
+	var bid  = req.body.bid;
+	var rating = req.body.ctRating;
+	var comment = req.body.ocomment;
+	pool.query(sql_query.query.update_acceptedBid_caretaker, [rating, comment, bid], (err, data) => {
+		if(err) {
+			res.redirect('/?rate=fail');
+		} else {
+			res.redirect('/');
+		}
+	});
+}
+
 function place_bid(req, res, next) {
 	var start  = req.body.datetimepicker6;
 	var end  = req.body.datetimepicker7;
@@ -479,6 +503,18 @@ function accept_bid(req, res, next) {
 	pool.query(sql_query.query.accept_bid, [id], (err, data) => {
 		if(err) {
 			console.error("Error in acceptbid " + id, err);
+			res.redirect('/dashboard');
+		} else {
+			res.redirect('/dashboard');
+		}
+	});
+}
+
+function close_post(req, res, next) {
+	var id  = req.body.aid;
+	pool.query(sql_query.query.close_post, [id], (err, data) => {
+		if(err) {
+			console.error("Error in close " + id, err);
 			res.redirect('/dashboard');
 		} else {
 			res.redirect('/dashboard');

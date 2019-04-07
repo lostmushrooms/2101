@@ -4,18 +4,18 @@ sql.query = {
 	// Counting & Average
 	
 	// Information
-	page_lims: 'SELECT * FROM Availabilities ORDER BY start_date ASC LIMIT 10 OFFSET $1',
-	ctx_posts: 'SELECT COUNT(*) FROM Availabilities',
-	page_lims_name: 'SELECT * FROM Availabilities WHERE ctname=$1 ORDER BY start_date ASC LIMIT 10 OFFSET $2',
-	ctx_posts_name: 'SELECT COUNT(*) FROM Availabilities WHERE ctname=$1',
-	page_lims_time: 'SELECT * FROM Availabilities WHERE (start_date<=$1 and end_date>=$2) ORDER BY start_date ASC LIMIT 10 OFFSET $3',
-	ctx_posts_time: 'SELECT COUNT(*) FROM Availabilities WHERE (start_date<=$1 and end_date >= $2)',
+	page_lims: 'SELECT * FROM Availabilities WHERE is_opened ORDER BY start_date ASC LIMIT 10 OFFSET $1',
+	ctx_posts: 'SELECT COUNT(*) FROM Availabilities WHERE is_opened',
+	page_lims_name: 'SELECT * FROM Availabilities WHERE is_opened and ctname=$1 ORDER BY start_date ASC LIMIT 10 OFFSET $2',
+	ctx_posts_name: 'SELECT COUNT(*) FROM Availabilities WHERE is_opened and ctname=$1',
+	page_lims_time: 'SELECT * FROM Availabilities WHERE is_opened and (start_date<=$1 and end_date>=$2) ORDER BY start_date ASC LIMIT 10 OFFSET $3',
+	ctx_posts_time: 'SELECT COUNT(*) FROM Availabilities WHERE is_opened and (start_date<=$1 and end_date >= $2)',
 
 	// Caretakers
-	my_avail: 'SELECT * FROM Availabilities WHERE ctname=$1 ORDER BY start_date ASC',
+	my_avail: 'SELECT * FROM Availabilities WHERE is_opened and ctname=$1 ORDER BY start_date ASC',
 	single_avail_bids: 'SELECT * FROM Bids WHERE availabilityId=$1 and id not in (SELECT id from AcceptedBids)',
 	ct_accepted_bids: 'SELECT Bids.id as id, Bids.oname as oname, Bids.ostart_date as start, Bids.oend_date as end, Bids.bidded_price_per_hour as price FROM Availabilities inner join Bids on Availabilities.id = Bids.availabilityId WHERE Availabilities.ctname = $1 and Bids.id in (SELECT id FROM AcceptedBids)',
-	completed_trans: 'SELECT Bids.id as id, Bids.oname as oname, Bids.ostart_date as start, Bids.oend_date as end, Bids.bidded_price_per_hour as price FROM Availabilities inner join Bids on Availabilities.id = Bids.availabilityId WHERE Availabilities.ctname = $1 and Bids.id in (SELECT id FROM Payments)',
+	completed_trans: 'SELECT Bids.id as id, Bids.oname as oname, Bids.ostart_date as start, Bids.oend_date as end, Bids.bidded_price_per_hour as price FROM Availabilities inner join Bids on Availabilities.id = Bids.availabilityId WHERE Availabilities.ctname = $1 and Bids.id in (SELECT id FROM Payments) and NOT EXIST (SELECT A.orating from AcceptedBids A WHERE A.id=Bids.id)',
 
 
 	// Owners
@@ -34,6 +34,8 @@ sql.query = {
 
 	// UpsRW
 	update_acceptedBid_owner: 'UPDATE AcceptedBids SET ctrating=($1), ocomments=($2) WHERE id=($3)',
+	update_acceptedBid_caretaker: 'UPDATE AcceptedBids SET orating=($1), ctcomments=($2) WHERE id=($3)',
+	close_post: 'UPDATE Availabilities SET is_opened=FALSE WHERE id=($1)',
 
 	// Login
 	userpass: 'SELECT * FROM Users WHERE username=$1',
