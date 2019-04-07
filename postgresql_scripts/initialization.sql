@@ -81,7 +81,7 @@ CREATE TABLE Chats (
 	oname VARCHAR(50),
 	ctname VARCHAR(50),
 	from_owner BOOL, --True if message was sent by owner, else message was sent by caretaker.
-	time TIMESTAMP,
+	time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 	message TEXT,
 	PRIMARY KEY (oname, ctname, from_owner, time),
 	FOREIGN KEY (oname) REFERENCES Owners (username) ON DELETE CASCADE,

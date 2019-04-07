@@ -39,6 +39,10 @@ function initRouter(app) {
 	app.get('/ctAcceptedBids', passport.authMiddleware(), ctAcceptedBids);
 	app.get('/completedTrans', passport.authMiddleware(), completedTrans);
 	app.get('/ownerProfile', passport.authMiddleware(), ownerProfile);
+
+	//chat
+	app.post('/send_message', passport.authMiddleware(), send_message);
+	app.get('/viewMessages', passport.authMiddleware(), viewMessages);
 	
 	/* PROTECTED POST */
 	app.post('/register'   , passport.antiMiddleware(), reg_user);
@@ -191,6 +195,29 @@ function my_availabilities(req, res, next) {
 		}
 		basic(req, res, 'my_availabilities', { ctx: ctx, tbl: tbl, auth: true });
 	});
+}
+
+function viewMessages(req, res, next) {
+	var tbl;
+	if (req.user.userType == "owner") {
+		pool.query(sql_query.query.read_message_owner, [req.user.username], (err, data) => {
+			if(err || !data.rows || data.rows.length == 0) {
+				tbl = [];
+			} else {
+				tbl = data.rows;
+			}
+			basic(req, res, 'viewMessages', { tbl: tbl, auth: true });
+		});
+	} else {
+		pool.query(sql_query.query.read_message_ct, [req.user.username], (err, data) => {
+			if(err || !data.rows || data.rows.length == 0) {
+				tbl = [];
+			} else {
+				tbl = data.rows;
+			}
+			basic(req, res, 'viewMessages', { tbl: tbl, auth: true });
+		});
+	}
 }
 
 function viewPost(req, res, next) {
@@ -516,6 +543,29 @@ function make_payment(req, res, next) {
 		}
 	});
 }
+
+
+function send_message(req, res, next) {
+	var oname, ctname, from_owner, message;
+	message = req.body.message;
+	if (req.user.userType == 'owner') {
+		from_owner = true;
+		oname = req.user.username;
+		ctname = req.body.toname;
+	} else {
+		from_owner = false;
+		oname = req.body.toname;
+		ctname = req.user.username;
+	}
+	pool.query(sql_query.query.send_message, [oname, ctname, from_owner, message], (err, data) => {
+		if(err) {
+			res.redirect('/');
+		} else {
+			res.redirect('/');
+		}
+	});
+}
+
 
 function make_rating(req, res, next) {
 	var bid  = req.body.bid;
