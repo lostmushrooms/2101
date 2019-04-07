@@ -44,7 +44,13 @@
 			
 			<div id="content-wrapper">
 				<div class="container-fluid">
-					<%- include name.ejs %>
+					
+					<ol class="breadcrumb">
+						<li class="breadcrumb-item">
+							<i class="fas fa-chess-pawn fa-fw"></i>
+								Owner Profile of <%= oname %>
+						</li>
+					</ol>
 					
 					<div class="card mb-3">
 						<div class="card-header">
@@ -55,11 +61,7 @@
 								<div class="form-group row">
 									<label for="username" class="col-sm-2 col-form-label"><b>Username: </b></label>
 									<div class="col-sm-4">
-										<input type="text" required="required" readonly class="form-control-plaintext" id="username" value="<%= user %>" name="username">
-									</div>
-									<label for="status" class="col-sm-2 col-form-label"><b>Email:</b></label>
-									<div class="col-sm-4">
-										<input type="text" required="required" readonly class="form-control-plaintext" id="status" value="<%= email %>" name="status">
+										<input type="text" required="required" readonly class="form-control-plaintext" id="username" value="<%= oname %>" name="username">
 									</div>
 								</div>
 							</div>
@@ -85,14 +87,14 @@
 											</tr>
 										</thead>
 										<tbody>
-											<% for(var i=0; i<tbl.length; i++) { %>
+											<% for(var i=0; i<pets.length; i++) { %>
 											<tr>
-												<td><%= i %></td>
-												<td><%= tbl[i].pname %></td>
-												<td><%= tbl[i].gender %></td>
-												<td><%= tbl[i].species %></td>
-												<td><%= tbl[i].weight_class %></td>
-												<td><%= tbl[i].description %></td>
+												<td><%= i + 1 %></td>
+												<td><%= pets[i].pname %></td>
+												<td><%= pets[i].gender %></td>
+												<td><%= pets[i].species %></td>
+												<td><%= pets[i].weight_class %></td>
+												<td><%= pets[i].description %></td>
 											</tr>
 											<% } %>
 										</tbody>
@@ -120,9 +122,9 @@
 										<tbody>
 											<% for(var i=0; i<tbl.length; i++) { %>
 											<tr>
-												<td><%= i %></td>
+												<td><%= i + 1 %></td>
 												<td><%= tbl[i].ctname %></td>
-												<td><%= tbl[i].date %></td>
+												<td><%= tbl[i].date.toLocaleDateString() %></td>
 												<td><%= tbl[i].rating %></td>
 												<td><%= tbl[i].comment %></td>
 											</tr>
@@ -133,9 +135,16 @@
 							</div>
 						</div>
 
+						<a href="javascript:history.back()">
+                    <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" href="/register">
+                      Back
+                    </button>
+                  </a>
+
 				</div>
 			</div>
 		</div>
+		
 		
 		<%- include bottomscript.ejs %>
   </body>

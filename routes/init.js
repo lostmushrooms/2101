@@ -30,12 +30,14 @@ function initRouter(app) {
 	app.get('/ownerAcceptedBids', passport.authMiddleware(), ownerAcceptedBids);
 	app.get('/pets', passport.authMiddleware(), Pets);
 	app.get('/makePayment', passport.authMiddleware(), makePayment);
+	app.get('/ctProfile', passport.authMiddleware(), ctProfile);
 
 	//ct
 	app.get('/makePost' , passport.authMiddleware(), makePost);
 	app.get('/my_availabilities', passport.authMiddleware(), my_availabilities);
 	app.get('/ctAcceptedBids', passport.authMiddleware(), ctAcceptedBids);
 	app.get('/completedTrans', passport.authMiddleware(), completedTrans);
+	app.get('/ownerProfile', passport.authMiddleware(), ownerProfile);
 	
 	/* PROTECTED POST */
 	app.post('/register'   , passport.antiMiddleware(), reg_user);
@@ -296,6 +298,57 @@ function placedBids(req, res, next) {
 			tbl = data.rows;
 		}
 		basic(req, res, 'placedBids', { tbl: tbl, auth: true, p: 1});
+	});
+}
+
+function ctProfile(req, res, next) {
+	if(req.user.userType != "owner") {
+		res.redirect('dashboard');
+	}
+	var care, tbl;
+	pool.query(sql_query.query.ct_care, [req.query.ctname], (err, data) => {
+		console.log(data.rows[0]);
+		if(err || !data.rows || data.rows.length == 0) {
+			care = [];
+		} else {
+			care = data.rows;
+		}
+
+		pool.query(sql_query.query.ct_comments, [req.query.ctname], (err, data) => {
+			console.log(data.rows[0]);
+			if(err || !data.rows || data.rows.length == 0) {
+				tbl = [];
+			} else {
+				tbl = data.rows;
+			}
+			basic(req, res, 'ctProfile', { ctname: req.query.ctname, tbl: tbl, care: care, auth: true});
+		});
+	});
+}
+
+
+function ownerProfile(req, res, next) {
+	if(req.user.userType != "careTaker") {
+		res.redirect('dashboard');
+	}
+	var pets, tbl;
+	pool.query(sql_query.query.owner_pets, [req.query.oname], (err, data) => {
+		console.log(data.rows[0]);
+		if(err || !data.rows || data.rows.length == 0) {
+			pets = [];
+		} else {
+			pets = data.rows;
+		}
+
+		pool.query(sql_query.query.owner_comments, [req.query.oname], (err, data) => {
+			console.log(data.rows[0]);
+			if(err || !data.rows || data.rows.length == 0) {
+				tbl = [];
+			} else {
+				tbl = data.rows;
+			}
+			basic(req, res, 'ownerProfile', { oname: req.query.oname, tbl: tbl, pets: pets, auth: true});
+		});
 	});
 }
 

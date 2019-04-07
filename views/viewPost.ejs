@@ -133,7 +133,11 @@
 										<tbody>
 											<% for(var i=0; i<tbl.length; i++) { %>
 											<tr>
-												<td><%= tbl[i].ctname%></td>
+												<td>
+													<a href="/ctProfile?ctname=<%= tbl[i].ctname%>">
+														<%= tbl[i].ctname%>
+													</a>
+												</td>
 												<td><%= tbl[i].start_date.toLocaleDateString()%></td>
 												<td><%= tbl[i].end_date.toLocaleDateString()%></td>
 												<td>
