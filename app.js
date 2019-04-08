@@ -27,7 +27,7 @@ require('dotenv').load();
 require('dotenv').config();
 require('./auth').init(app);
 app.use(session({
-  secret: "keyboard meowww",
+  secret: process.env.SECRET,
   resave: true,
   saveUninitialized: true
 }))
