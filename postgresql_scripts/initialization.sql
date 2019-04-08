@@ -288,14 +288,18 @@ VALUES
 	('Miaaaaa97', '381453218@qq.com', '$2b$10$ONZuakkV8QXIG4ZIjua3ZODsEsNWjNLgtxGtKP4sL3wVZqdgLRH2S', 88888888),
 	('Miaaaaa666', 'zhangtieze26@gmail.com', '$2b$10$2ll0FMZUTBxwJsUxsikYhOQdRox/Iro5QvVAAawHuW/XUDsqG.9nq', 88888888),
 	('Alice00', 'alice00@hotmail.com', '$2b$10$uzE/Z3QSnaHJOJMyGL4OXOM9LjtF38KYhAX/RA6DAeZSyXqUMc9C2', 11111111),
-	('Bob00', 'bob00@hotmail.com', '$2b$10$jr9buQPUiCdj4yuIKsvCR.6/aZBEDsQTlU0C7cutrIkYXuOBzj4xq', 11111112);
+	('Bob00', 'bob00@hotmail.com', '$2b$10$jr9buQPUiCdj4yuIKsvCR.6/aZBEDsQTlU0C7cutrIkYXuOBzj4xq', 11111112),
+	('IcyWatermelon', 'watermelon@guatamala.com', 
+	'$2b$10$kklJhdvjtpTFwfBCfHh1O.hV1N3moaQOgVgm8ewzsDyxdya2LnPPC', 99999999);
+
 
 -- Owners
 
 INSERT INTO Owners (username)
 VALUES 
 	('Miaaaaa97'),
-	('Alice00');
+	('Alice00'),
+	('IcyWatermelon');
 
 -- Caretakers
 INSERT INTO Caretakers (username)
