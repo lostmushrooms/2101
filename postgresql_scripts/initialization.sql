@@ -47,7 +47,7 @@ CREATE TYPE service_type AS ENUM (
 --create tables
 CREATE TABLE Users (
 	username VARCHAR(50), --increase if necessary
-	email VARCHAR(100) UNIQUE NOT NULL , --increase if necessary
+	email VARCHAR(100) NOT NULL , --increase if necessary
 	password VARCHAR(64) NOT NULL,
 	phone_number VARCHAR(20),
 	PRIMARY KEY (username)
@@ -204,6 +204,31 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+CREATE TRIGGER valid_availability_trig
+BEFORE INSERT
+ON Availabilities
+FOR EACH ROW
+EXECUTE PROCEDURE valid_availability();
+
+--For Availabilities table, a user cannot update the availability from close to open and he cannot change the dates of the availability.
+CREATE OR REPLACE FUNCTION prevent_change_availability()
+RETURNS TRIGGER AS
+$$
+BEGIN
+	IF NEW.start_date <> OLD.start_date OR NEW.end_date <> OLD.end_date OR (NEW.is_opened = True AND OLD.is_opened = False)
+	THEN RETURN NULL;
+	ELSE RETURN NEW;
+	END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER prevent_change_availability_trig
+BEFORE UPDATE
+ON Availabilities
+FOR EACH ROW
+EXECUTE PROCEDURE prevent_change_availability();
+
+
 --For Bid table, we need ostart_date >= referenced availability's start_date and oend_date <= referenced availability's end_date, and the referenced availability needs to be open.
 CREATE OR REPLACE FUNCTION valid_bid()
 RETURNS TRIGGER AS
@@ -263,14 +288,18 @@ VALUES
 	('Miaaaaa97', '381453218@qq.com', '$2b$10$ONZuakkV8QXIG4ZIjua3ZODsEsNWjNLgtxGtKP4sL3wVZqdgLRH2S', 88888888),
 	('Miaaaaa666', 'zhangtieze26@gmail.com', '$2b$10$2ll0FMZUTBxwJsUxsikYhOQdRox/Iro5QvVAAawHuW/XUDsqG.9nq', 88888888),
 	('Alice00', 'alice00@hotmail.com', '$2b$10$uzE/Z3QSnaHJOJMyGL4OXOM9LjtF38KYhAX/RA6DAeZSyXqUMc9C2', 11111111),
-	('Bob00', 'bob00@hotmail.com', '$2b$10$jr9buQPUiCdj4yuIKsvCR.6/aZBEDsQTlU0C7cutrIkYXuOBzj4xq', 11111112);
+	('Bob00', 'bob00@hotmail.com', '$2b$10$jr9buQPUiCdj4yuIKsvCR.6/aZBEDsQTlU0C7cutrIkYXuOBzj4xq', 11111112),
+	('IcyWatermelon', 'watermelon@guatamala.com', 
+	'$2b$10$kklJhdvjtpTFwfBCfHh1O.hV1N3moaQOgVgm8ewzsDyxdya2LnPPC', 99999999);
+
 
 -- Owners
 
 INSERT INTO Owners (username)
 VALUES 
 	('Miaaaaa97'),
-	('Alice00');
+	('Alice00'),
+	('IcyWatermelon');
 
 -- Caretakers
 INSERT INTO Caretakers (username)
@@ -334,3 +363,5 @@ VALUES
 	('Miaaaaa666', 'cat', 'medium', 'petsitting', '...'),
 	('Bob00', 'dog', 'medium', 'daycare', '...'),
 	('Bob00', 'cat', 'small', 'petsitting', '...');
+
+
