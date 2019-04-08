@@ -79,7 +79,7 @@
 						<div class="card-header">
 							<i class="fas fa-dice-d20"></i> &nbsp; Add Pet
 						</div>
-						<form method="post" action="/add_pet">
+						<form method="post" action="/add_pet?max_id=<%= len %>">
 							<div class="card-body">
 								<div class="form-group row">
 									<label for="petname" class="col-sm-3 col-form-label"><b>Pet Name</b></label>
@@ -88,41 +88,41 @@
 									</div>
 								</div>
 								<div class="form-group row">
-  									<label for="petname" class="col-sm-3 col-form-label"><b>Gender</b></label>
+  									<label for="gender" class="col-sm-3 col-form-label"><b>Gender</b></label>
   									<div class="col-sm-9">
-	  									<select class="custom-select" id="inputGroupSelect01">
-										    <option value="1">Male</option>
-										    <option value="2">Female</option>
-										    <option value="3">Others</option>
-										    <option value="3">Unknown</option>
+	  									<select class="custom-select" id="gender">
+										    <option value="male">Male</option>
+										    <option value="female">Female</option>
+										    <option value="others">Others</option>
+										    <option value="unknown">Unknown</option>
 										</select>
 									</div>
 								</div>
 								<div class="form-group row">
-  									<label for="petname" class="col-sm-3 col-form-label"><b>Species</b></label>
+  									<label for="species" class="col-sm-3 col-form-label"><b>Species</b></label>
   									<div class="col-sm-9">
-	  									<select class="custom-select" id="inputGroupSelect01">
-										    <option value="1">Dog</option>
-										    <option value="2">Cat</option>
-										    <option value="3">Others</option>
+	  									<select class="custom-select" id="species">
+										    <option value="dog">Dog</option>
+										    <option value="cat">Cat</option>
+										    <option value="others">Others</option>
 										</select>
 									</div>
 								</div>
 								<div class="form-group row">
-  									<label for="petname" class="col-sm-3 col-form-label"><b>Weight Class</b></label>
+  									<label for="weight_class" class="col-sm-3 col-form-label"><b>Weight Class</b></label>
   									<div class="col-sm-9">
-	  									<select class="custom-select" id="inputGroupSelect01">
-										    <option value="1">Small</option>
-										    <option value="2">Medium</option>
-										    <option value="3">Large</option>
-										    <option value="3">Giant</option>
+	  									<select class="custom-select" id="weight_class">
+										    <option value="small">Small</option>
+										    <option value="medium">Medium</option>
+										    <option value="large">Large</option>
+										    <option value="giant">Giant</option>
 										</select>
 									</div>
 								</div>
 								<div class="form-group row">
 									<label for="petname" class="col-sm-3 col-form-label"><b>Description</b></label>
 									<div class="col-sm-9">
-										<input type="text" required="required" class="form-control" id="petname" placeholder="A Short and Sweet Bio of Your Pet..." name="petname" value="">
+										<input type="text" required="required" class="form-control" id="description" placeholder="A Short and Sweet Bio of Your Pet..." name="description" value="">
 									</div>
 								</div>
 							</div>

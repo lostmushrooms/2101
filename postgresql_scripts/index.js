@@ -40,7 +40,7 @@ sql.query = {
 	add_bid: 'INSERT INTO Bids (id, availabilityid, oname,ostart_date, oend_date, bidded_price_per_hour) VALUES ((SELECT (COALESCE(MAX(id), 0)) from Bids)+1, $1,$2,$3,$4,$5)',
 	accept_bid: 'INSERT INTO AcceptedBids (id) VALUES ($1)',
 	add_payment: 'INSERT INTO Payments (payment_id, id, value) VALUES ((SELECT (COALESCE(MAX(payment_id), 0)) from Payments)+1, $1,$2)',
-
+	add_pet: 'INSERT INTO Pets (pid, oname, pname, gender, species, weight_class, biography) VALUES ($1,$2,$3,$4,$5,$6,$7)',
 	// UpsRW
 	update_acceptedBid_owner: 'UPDATE AcceptedBids SET ctrating=($1), ocomments=($2) WHERE id=($3)',
 	update_acceptedBid_caretaker: 'UPDATE AcceptedBids SET orating=($1), ctcomments=($2) WHERE id=($3)',

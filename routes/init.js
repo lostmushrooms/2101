@@ -55,6 +55,7 @@ function initRouter(app) {
 	app.post('/filterByDate'   , passport.authMiddleware(), search_date);
 	app.post('/cleanFilter'   , passport.authMiddleware(), clean_filter);
 	app.post('/closePost'   , passport.authMiddleware(), close_post);
+	app.post('/add_pet'   , passport.authMiddleware(), add_pet);
 
 
 	/* LOGIN */
@@ -165,20 +166,22 @@ function Pets(req, res, next) {
 	if(req.user.userType != "owner") {
 		res.redirect('dashboard');
 	}
-	var tbl;
+	var len, tbl;
 	pool.query(sql_query.query.owner_pets, [req.user.username], (err, data) => {
 		var id = null;
 		var row = null;
 		if(err || !data.rows || data.rows.length == 0) {
+			len = 0;
 			tbl = [];
 		} else {
 			row = data.rows[0];
 			if (row) {
 				id = row.id;
 			}
+			len = data.rows.length;
 			tbl = data.rows;
 		}
-		basic(req, res, 'Pets', { tbl: tbl, auth: true, bid: id});
+		basic(req, res, 'Pets', { tbl: tbl, len: len, auth: true, bid: id});
 	});
 }
 
@@ -540,6 +543,24 @@ function make_payment(req, res, next) {
 					res.redirect('/');
 				}
 			});
+		}
+	});
+}
+
+function add_pet(req, res, next) {
+	var oname = req.user.username;
+	var id, name, gender, species, weight_class, bio;
+	id = req.query.max_id;
+	name = req.body.petname;
+	gender = req.body.gender;
+	species = req.body.species;
+	weight_class = req.body.weight_class;
+	bio = req.body.description;
+	pool.query(sql_query.query.add_pet, [id, oname, name, gender, species, weight_class, bio], (err, data) => {
+		if(err) {
+			res.redirect('/');
+		} else {
+			res.redirect('/pets');
 		}
 	});
 }
