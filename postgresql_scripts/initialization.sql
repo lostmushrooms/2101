@@ -47,7 +47,7 @@ CREATE TYPE service_type AS ENUM (
 --create tables
 CREATE TABLE Users (
 	username VARCHAR(50), --increase if necessary
-	email VARCHAR(100) UNIQUE NOT NULL , --increase if necessary
+	email VARCHAR(100) NOT NULL , --increase if necessary
 	password VARCHAR(64) NOT NULL,
 	phone_number VARCHAR(20),
 	PRIMARY KEY (username)
