@@ -40,7 +40,7 @@ order by rounded_rating
 
 /*Question: How does frequency of a caretaker's availability affect his popularity? 
 If the frequency of a caretaker's availability is independent to his popularity, one might expect that after adjusting for caretaker ratings and other potential confounders,
-for any given caretaker, the ratio of the number of bids placed to that caretaker over the total time length of their availabilities, would be roughly constant.
+for any given caretaker, the ratio of the number of bids placed to that caretaker over the total time length of their availabilities (opened and closed), would be roughly constant.
 We want to check if this is the case or not.
 
 The following query finds for a particular caretaker, the value of number of bids placed per day of his availability.

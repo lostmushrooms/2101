@@ -206,10 +206,25 @@ END;
 $$ LANGUAGE plpgsql;
 
 CREATE TRIGGER valid_availability_trig
-BEFORE INSERT OR UPDATE
+BEFORE INSERT
 ON Availabilities
 FOR EACH ROW
 EXECUTE PROCEDURE valid_availability();
+
+--For Availabilities table, we do not allow updates, only insertion and deletion.
+CREATE OR REPLACE FUNCTION prevent_update()
+RETURNS TRIGGER AS
+$$
+BEGIN
+	RETURN OLD;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER prevent_update_trig
+BEFORE UPDATE
+ON Availabilities
+FOR EACH ROW
+EXECUTE PROCEDURE prevent_update();
 
 --For Bid table, we need ostart_date >= referenced availability's start_date and oend_date <= referenced availability's end_date, and the referenced availability needs to be open.
 CREATE OR REPLACE FUNCTION valid_bid()
