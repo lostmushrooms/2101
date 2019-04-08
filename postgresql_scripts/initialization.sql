@@ -210,6 +210,25 @@ ON Availabilities
 FOR EACH ROW
 EXECUTE PROCEDURE valid_availability();
 
+--For Availabilities table, a user cannot update the availability from close to open and he cannot change the dates of the availability.
+CREATE OR REPLACE FUNCTION prevent_change_availability()
+RETURNS TRIGGER AS
+$$
+BEGIN
+	IF NEW.start_date <> OLD.start_date OR NEW.end_date <> OLD.end_date OR (NEW.is_opened = True AND OLD.is_opened = False)
+	THEN RETURN NULL;
+	ELSE RETURN NEW;
+	END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER prevent_change_availability_trig
+BEFORE UPDATE
+ON Availabilities
+FOR EACH ROW
+EXECUTE PROCEDURE prevent_change_availability();
+
+
 --For Bid table, we need ostart_date >= referenced availability's start_date and oend_date <= referenced availability's end_date, and the referenced availability needs to be open.
 CREATE OR REPLACE FUNCTION valid_bid()
 RETURNS TRIGGER AS
