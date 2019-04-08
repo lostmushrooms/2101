@@ -66,14 +66,13 @@ CREATE TABLE Caretakers (
 );
 
 CREATE TABLE Pets (
-	pid INTEGER, --weak unique id of pet
 	oname VARCHAR(50), --username of owner
-	pname VARCHAR(50), --non-unique name of pet
+	pname VARCHAR(50), --weak unique name of pet
 	gender gender_type NOT NULL DEFAULT 'unknown',
 	species species_type NOT NULL DEFAULT 'unknown',
 	weight_class weight_type NOT NULL DEFAULT 'unknown',
 	biography VARCHAR(500), --bio of the pet
-	PRIMARY KEY (pid, oname),
+	PRIMARY KEY (pname, oname),
 	FOREIGN KEY (oname) REFERENCES Owners (username) ON DELETE CASCADE
 );
 	
@@ -81,7 +80,7 @@ CREATE TABLE Chats (
 	oname VARCHAR(50),
 	ctname VARCHAR(50),
 	from_owner BOOL, --True if message was sent by owner, else message was sent by caretaker.
-	time TIMESTAMP,
+	time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 	message TEXT,
 	PRIMARY KEY (oname, ctname, from_owner, time),
 	FOREIGN KEY (oname) REFERENCES Owners (username) ON DELETE CASCADE,
@@ -205,27 +204,6 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER valid_availability_trig
-BEFORE INSERT
-ON Availabilities
-FOR EACH ROW
-EXECUTE PROCEDURE valid_availability();
-
---For Availabilities table, we do not allow updates, only insertion and deletion.
-CREATE OR REPLACE FUNCTION prevent_update()
-RETURNS TRIGGER AS
-$$
-BEGIN
-	RETURN OLD;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER prevent_update_trig
-BEFORE UPDATE
-ON Availabilities
-FOR EACH ROW
-EXECUTE PROCEDURE prevent_update();
-
 --For Bid table, we need ostart_date >= referenced availability's start_date and oend_date <= referenced availability's end_date, and the referenced availability needs to be open.
 CREATE OR REPLACE FUNCTION valid_bid()
 RETURNS TRIGGER AS
@@ -301,12 +279,12 @@ VALUES
 	('Bob00');
 
 -- Pets
-INSERT INTO Pets(pid, oname, pname, biography) 
+INSERT INTO Pets(oname, pname, biography) 
 VALUES 
-    (1, 'Alice00', 'Prince', 'cute cute'),
-	(2, 'Alice00', 'Princess', 'paw paw'),
-	(1, 'Miaaaaa97', 'Orange', 'ooooooorange'),
-	(2, 'Miaaaaa97', 'Purp', 'purrrrrrrrrp');
+    ('Alice00', 'Prince', 'cute cute'),
+	('Alice00', 'Princess', 'paw paw'),
+	('Miaaaaa97', 'Orange', 'ooooooorange'),
+	('Miaaaaa97', 'Purp', 'purrrrrrrrrp');
 
 -- Availabilities
 INSERT INTO Availabilities (id, ctname, start_date, end_date) 
