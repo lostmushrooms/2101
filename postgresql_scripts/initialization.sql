@@ -204,45 +204,26 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+CREATE TRIGGER valid_availability_trig
+BEFORE INSERT
+ON Availabilities
+FOR EACH ROW
+EXECUTE PROCEDURE valid_availability();
+
 --For Bid table, we need ostart_date >= referenced availability's start_date and oend_date <= referenced availability's end_date, and the referenced availability needs to be open.
 CREATE OR REPLACE FUNCTION valid_bid()
 RETURNS TRIGGER AS
 $$
-DECLARE datecursor CURSOR (new_start_date DATE, new_end_date DATE) FOR
-	SELECT *
-	FROM Availabilities A
- 	WHERE A.start_date <= new_end_date AND A.end_date >= new_start_date AND A.ctname = new.ctname;
-	final_start_date DATE;
-	final_end_date DATE;
-	availability RECORD;
-BEGIN
-	OPEN datecursor(new_start_date := new.start_date, new_end_date := new.end_date);
-	final_start_date := new.start_date;
-	final_end_date := new.end_date;
-	--first loop to extract the final start_date and end_date.
-	LOOP
-		FETCH datecursor INTO availability;
-		EXIT WHEN NOT FOUND;
-		final_start_date := LEAST(availability.start_date, final_start_date);
-		final_end_date := GREATEST(availability.end_date, final_end_date);
-		raise notice 'a';
-	END LOOP;
-	MOVE BACKWARD ALL FROM datecursor;
-	ALTER TABLE Bids DISABLE TRIGGER ALL; --temporarily disable constraindate for Bids so that id can be altered.
-	--second loop to update Bids (which has a foreign reference to Availabilities) and delete entries in Availabilities which are in the overlap.
-	LOOP
-		FETCH datecursor INTO availability;
-		EXIT WHEN NOT FOUND;
-		UPDATE Bids B
-		SET availabilityId = new.id
-		where B.availabilityId = availability.id;
-		DELETE FROM Availabilities A WHERE CURRENT OF datecursor;
-		raise notice 'b';
-	END LOOP;
-	CLOSE datecursor;
-	ALTER TABLE Bids ENABLE TRIGGER ALL; 
-	--finally insert 1 entry into Availability which encompasses all the deleted entries as well as the newest entry.
-	RETURN (new.id, new.ctname, final_start_date, final_end_date);
+DECLARE avail Availabilities%ROWTYPE;
+BEGIN 
+	SELECT * INTO avail FROM Availabilities A WHERE A.id = new.availabilityId; 
+	IF (
+		NEW.ostart_date < avail.start_date OR
+		NEW.oend_date > avail.end_date OR
+		avail.is_opened = False
+		)THEN RETURN NULL;
+	ELSE RETURN NEW;
+	END IF;
 END;
 $$ LANGUAGE plpgsql;
 
@@ -363,3 +344,5 @@ VALUES
 	('Miaaaaa666', 'cat', 'medium', 'petsitting', '...'),
 	('Bob00', 'dog', 'medium', 'daycare', '...'),
 	('Bob00', 'cat', 'small', 'petsitting', '...');
+
+
