@@ -1,7 +1,7 @@
 # cs2102_ay1819_s2
 CS2102 Database Systems: Introduction to Web Application Development
 
-==Setting up:
+Setting up:
 
 1. Clone this repository to your computer.
 
@@ -10,8 +10,10 @@ CS2102 Database Systems: Introduction to Web Application Development
 3. Run `npm install`.
 
 4. Make a new .env file in the root folder. Copy the following two lines into the .env file and replace the parameters in square bracket with your database host information:
-    DATABASE_URL=postgres://[sql username]:[sql password]@[host]:[port number]/[database name] +
-    SECRET='secret' +
+
+    DATABASE_URL=postgres://[sql username]:[sql password]@[host]:[port number]/[database name] 
+
+    SECRET='secret' 
 
 5. Run the /postgresql_scripts/initialization.sql script in your sql server.
 
