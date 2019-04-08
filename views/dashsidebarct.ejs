@@ -24,7 +24,19 @@
 		<li class="nav-item">
 		<a class="nav-link <%= page==="completedTrans" ? "active" : "" %>" href="<%= page==="completedTrans" ? "#" : "/completedTrans" %>">
 			<i class="fas fa-fw fa-trophy"></i>
-			<span>Completed Transactions</span></a>
+			<span>Pending Review</span></a>
+	</li>
+	</li>
+		<li class="nav-item">
+		<a class="nav-link <%= page==="trueCompletedTrans" ? "active" : "" %>" href="<%= page==="trueCompletedTrans" ? "#" : "/trueCompletedTrans" %>">
+			<i class="fas fa-fw fa-trophy"></i>
+			<span>Complete Transactions</span></a>
+	</li>
+	</li>
+		<li class="nav-item">
+		<a class="nav-link <%= page==="careProvided" ? "active" : "" %>" href="<%= page==="careProvided" ? "#" : "/careProvided" %>">
+			<i class="fas fa-fw fa-trophy"></i>
+			<span>Service Provided</span></a>
 	</li>
 	<li class="nav-item">
 		<a class="nav-link <%= page==="viewMessages" ? "active" : "" %>" href="<%= page==="viewMessages" ? "#" : "/viewMessages" %>">

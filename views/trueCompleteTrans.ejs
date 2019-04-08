@@ -7,7 +7,7 @@
 	<meta name="description" content="">
 	<meta name="author" content="">
 
-	<title>Pending Review</title>
+	<title>Completed Transactions</title>
 	<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut" crossorigin="anonymous"></script>
 	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k" crossorigin="anonymous"></script>
@@ -48,7 +48,7 @@
 					<div class="container-fluid">
 						<div class="card mb-3">
 							<div class="card-header">
-								<i class="fas fa-dice"></i> &nbsp; Pending Review
+								<i class="fas fa-dice"></i> &nbsp; Completed Transactions
 							</div>
 							<div class="card-body">
 								<div class="table-responsive">
@@ -58,8 +58,8 @@
 												<th>Owner Name</th>
 												<th>Start Date</th>
 												<th>End Date</th>
-												<th>Price</th>
-												<th></th>
+												<th>Rating</th>
+												<th>Review</th>
 											</tr>
 										</thead>
 										<tbody>
@@ -68,14 +68,8 @@
 												<td><%= tbl[i].oname %></td>
 												<td><%= tbl[i].start.toLocaleDateString() %></td>
 												<td><%= tbl[i].end.toLocaleDateString() %></td>
-												<td><%= tbl[i].price %></td>
-												<td>
-													<a href="/makeRating?bid=<%= tbl[i].id%>">
-														<button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" >
-															Give Rating
-														</button>
-													</a>
-												</td>
+												<td><%= tbl[i].rating %></td>
+												<td><%= tbl[i].review %></td>
 											</tr>
 											<% } %>
 										</tbody>

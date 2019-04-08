@@ -39,6 +39,8 @@ function initRouter(app) {
 	app.get('/ctAcceptedBids', passport.authMiddleware(), ctAcceptedBids);
 	app.get('/completedTrans', passport.authMiddleware(), completedTrans);
 	app.get('/ownerProfile', passport.authMiddleware(), ownerProfile);
+	app.get('/trueCompletedTrans', passport.authMiddleware(), trueCompletedTrans);
+	app.get('/careProvided', passport.authMiddleware(), careProvided);
 
 	//chat
 	app.post('/send_message', passport.authMiddleware(), send_message);
@@ -56,6 +58,9 @@ function initRouter(app) {
 	app.post('/cleanFilter'   , passport.authMiddleware(), clean_filter);
 	app.post('/closePost'   , passport.authMiddleware(), close_post);
 	app.post('/add_pet'   , passport.authMiddleware(), add_pet);
+	app.post('/delete_pet'   , passport.authMiddleware(), delete_pet);
+	app.post('/add_care'   , passport.authMiddleware(), add_care);
+	app.post('/delete_care'   , passport.authMiddleware(), delete_care);
 
 
 	/* LOGIN */
@@ -103,11 +108,21 @@ function register(req, res, next) {
 }
 
 function dashboard(req, res, next) {
-	basic(req, res, 'dashboard', { 
-		info_msg: msg(req, 'info', 'Information updated successfully', 'Error in updating information'), 
-		pass_msg: msg(req, 'pass', 'Password updated successfully', 'Error in updating password'), 
-		auth: true 
-	});
+	if (req.user.userType == "careTaker") {
+		basic(req, res, 'caretakerdashboard', { 
+			info_msg: msg(req, 'info', 'Information updated successfully', 'Error in updating information'), 
+			pass_msg: msg(req, 'pass', 'Password updated successfully', 'Error in updating password'), 
+			auth: true 
+		});
+	} else if (req.user.userType == "owner") {
+		basic(req, res, 'ownerdashboard', { 
+			info_msg: msg(req, 'info', 'Information updated successfully', 'Error in updating information'), 
+			pass_msg: msg(req, 'pass', 'Password updated successfully', 'Error in updating password'), 
+			auth: true 
+		});
+	} else {
+		res.redirect("/")
+	}
 }
 
 function makePost(req, res, next) {
@@ -182,6 +197,28 @@ function Pets(req, res, next) {
 			tbl = data.rows;
 		}
 		basic(req, res, 'Pets', { tbl: tbl, len: len, auth: true, bid: id});
+	});
+}
+
+
+function careProvided(req, res, next) {
+	if(req.user.userType != "careTaker") {
+		res.redirect('dashboard');
+	}
+	var tbl;
+	pool.query(sql_query.query.care_provided, [req.user.username], (err, data) => {
+		var id = null;
+		var row = null;
+		if(err || !data.rows || data.rows.length == 0) {
+			tbl = [];
+		} else {
+			row = data.rows[0];
+			if (row) {
+				id = row.id;
+			}
+			tbl = data.rows;
+		}
+		basic(req, res, 'careProvided', { tbl: tbl, auth: true, bid: id});
 	});
 }
 
@@ -457,6 +494,28 @@ function completedTrans(req, res, next) {
 	});
 }
 
+function trueCompletedTrans(req, res, next) {
+	if(req.user.userType != "careTaker") {
+		res.redirect('dashboard');
+	}
+	var tbl;
+	pool.query(sql_query.query.true_completed_trans, [req.user.username], (err, data) => {
+		var id = null;
+		var row = null;
+
+		if(err || !data.rows || data.rows.length == 0) {
+			tbl = [];
+		} else {
+			row = data.rows[0];
+			if (row) {
+				id = row.id;
+			}
+			tbl = data.rows;
+		}
+		basic(req, res, 'trueCompleteTrans', { tbl: tbl, auth: true});
+	});
+}
+
 function login(req, res, next) {
 	res.render('login', { page: 'login', auth: false });
 }
@@ -549,18 +608,34 @@ function make_payment(req, res, next) {
 
 function add_pet(req, res, next) {
 	var oname = req.user.username;
-	var id, name, gender, species, weight_class, bio;
-	id = req.query.max_id;
-	name = req.body.petname;
+	var name, gender, species, weight_class, bio;
+	pname = req.body.petname;
 	gender = req.body.gender;
 	species = req.body.species;
 	weight_class = req.body.weight_class;
 	bio = req.body.description;
-	pool.query(sql_query.query.add_pet, [id, oname, name, gender, species, weight_class, bio], (err, data) => {
+	pool.query(sql_query.query.add_pet, [oname, pname, gender, species, weight_class, bio], (err, data) => {
 		if(err) {
 			res.redirect('/');
 		} else {
 			res.redirect('/pets');
+		}
+	});
+}
+
+
+function add_care(req, res, next) {
+	var ctname = req.user.username;
+	var species, weight_class, service, bio;
+	species = req.body.species;
+	weight_class = req.body.weight_class;
+	service = req.body.service;
+	bio = req.body.description;
+	pool.query(sql_query.query.add_care, [ctname, species, weight_class, service, bio], (err, data) => {
+		if(err) {
+			res.redirect('/');
+		} else {
+			res.redirect('/careProvided');
 		}
 	});
 }
@@ -641,7 +716,35 @@ function close_post(req, res, next) {
 			console.error("Error in close " + id, err);
 			res.redirect('/dashboard');
 		} else {
+			res.redirect('/my_availabilities');
+		}
+	});
+}
+
+function delete_pet(req, res, next) {
+	var pname = req.body.pname;
+	var oname = req.user.username
+	pool.query(sql_query.query.delete_pet, [pname, oname], (err, data) => {
+		if(err) {
+			console.error("Error in delete " + pname, err);
 			res.redirect('/dashboard');
+		} else {
+			res.redirect('/Pets');
+		}
+	});
+}
+
+function delete_care(req, res, next) {
+	var ctname = req.user.username;
+	var species = req.body.species;
+	var weight_class = req.body.weight_class;
+	var service = req.body.service
+	pool.query(sql_query.query.delete_care, [ctname, species, weight_class, service], (err, data) => {
+		if(err) {
+			console.error("Error in delete " + species, err);
+			res.redirect('/dashboard');
+		} else {
+			res.redirect('/careProvided');
 		}
 	});
 }
