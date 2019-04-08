@@ -22,52 +22,37 @@
 	<%- include dashnavbar.ejs %>
 
 	<div id="wrapper">
-		<%- include dashsidebarct.ejs %>
+		<% if (userType == 'owner') { %>
+	  		<%- include dashsidebarowner.ejs %>
+    	<% } else if (userType == 'careTaker') { %>
+      		<%- include dashsidebarct.ejs %>
+    	<% } else { %>
+    	      <h1>Unknown Error</h1>
+    	<% } %>
 
 		<div id="content-wrapper">
 			<div class="container-fluid">
-				<%- include name.ejs %>
 
 				<div class="card mb-3">
 					<div class="card-header">
-						<i class="fas fa-dice"></i> &nbsp; Availabilities List
+						<i class="fas fa-dice"></i> &nbsp; Messages
 					</div>
 					<div class="card-body">
 						<div class="table-responsive">
 							<table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
 								<thead>
 									<tr>
-										<th>No.</th>
-										<th>Start Date</th>
-										<th>End date</th>
-										<th></th>
-										<th></th>
+										<th>From</th>
+										<th>Message</th>
+										<th>Date</th>
 									</tr>
 								</thead>
-								<tfoot>
-									<th colspan="5">Total: <i><%= ctx %></i></th>
-								</tfoot>
 								<tbody>
-									<% for(var i=1; i <= tbl.length; i++) { %>
+									<% for(var i=0; i < tbl.length; i++) { %>
 									<tr>
-										<td><%= i %></td>
-										<td><%= tbl[i - 1].start_date.toLocaleDateString()%></td>
-										<td><%= tbl[i - 1].end_date.toLocaleDateString()%></td>
-										<td>
-											<a href="/viewBids?aid=<%= tbl[i - 1].id %>">
-												<button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" >
-													View Bids
-												</button>
-											</a>
-										</td>
-										<td>
-											<form id="closePost" method="post" role="form" action="closePost">
-												<input name="aid", id="aid", type="hidden", value="<%= tbl[i - 1].id %>">
-												<button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
-													Close Post
-												</button>
-											</form>
-										</td>
+										<td><%= tbl[i].from %></td>
+										<td><%= tbl[i].message %></td>
+										<td><%= tbl[i].date.toLocaleDateString()%></td>
 									</tr>
 									<% } %>
 								</tbody>
@@ -75,6 +60,31 @@
 						</div>
 					</div>
 				</div>
+
+				<div class="card mb-3">
+						<div class="card-header">
+							<i class="fas fa-dice-d20"></i> &nbsp; Send Message
+						</div>
+						<form method="post" action="/send_message">
+							<div class="card-body">
+								<div class="form-group row">
+									<label for="username" class="col-sm-3 col-form-label"><b>To: </b></label>
+									<div class="col-sm-9">
+										<input type="text" required="required" class="form-control" id="toname" value="" placeholder="Username..." name="toname">
+									</div>
+								</div>
+								<div class="form-group row">
+									<label for="gamename" class="col-sm-3 col-form-label"><b>Message:</b></label>
+									<div class="col-sm-9">
+										<input type="text" required="required" class="form-control" id="message" placeholder="Message..." name="message" value="">
+									</div>
+								</div>
+							</div>
+							<div class="card-footer small text-muted">
+								<button type="submit" class="btn btn-secondary">Send</button>
+							</div>
+						</form>
+					</div>
 
 			</div>
 		</div>

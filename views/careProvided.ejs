@@ -17,13 +17,12 @@
 	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:regular,bold,italic,thin,light,bolditalic,black,medium&amp;lang=en">
 	<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
 	<link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.min.css">
-</style>
   </head>
 	<body id="page-top">
 		<%- include dashnavbar.ejs %>
 		
 		<div id="wrapper">
-			<%- include dashsidebarowner.ejs %>
+			<%- include dashsidebarct.ejs %>
 			
 			<div id="content-wrapper">
 				<div class="container-fluid">
@@ -31,29 +30,32 @@
 					
 					<div class="card mb-3">
 						<div class="card-header">
-							<i class="fas fa-dice"></i> &nbsp; My Pets
+							<i class="fas fa-dice"></i> &nbsp; Service Provided
 						</div>
 						<div class="card-body">
 							<div class="table-responsive">
 								<table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
 									<thead>
-										<tr>
-											<th>Name</th>
-											<th>Gender</th>
+											<th>No.</th>
 											<th>Species</th>
 											<th>Weight Class</th>
+											<th>Service</th>
+											<th>Description</th>
 										</tr>
 									</thead>
 									<tbody>
 										<% for(var i=0; i<tbl.length; i++) { %>
 										<tr>
-											<td><%= tbl[i].pname%></td>
-											<td><%= tbl[i].gender%></td>
+											<td><%= i + 1 %></td>
 											<td><%= tbl[i].species%></td>
 											<td><%= tbl[i].weight_class%></td>
+											<td><%= tbl[i].service%></td>
+											<td><%= tbl[i].extra_descriptions%></td>
 											<td>
-												<form method="post" action="/delete_pet">
-												<input name="pname", id="pname", type="hidden", value="<%= tbl[i].pname %>">
+												<form method="post" action="/delete_care">
+												<input name="species", id="species", type="hidden", value="<%= tbl[i].species %>">
+												<input name="weight_class", id="weight_class", type="hidden", value="<%= tbl[i].weight_class %>">
+												<input name="service", id="service", type="hidden", value="<%= tbl[i].service %>">
 												<button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
 													Delete Record
 												</button>
@@ -69,27 +71,11 @@
 					
 					<div class="card mb-3">
 						<div class="card-header">
-							<i class="fas fa-dice-d20"></i> &nbsp; Add Pet
+							<i class="fas fa-dice-d20"></i> &nbsp; Add Service
 						</div>
-						<form method="post" action="/add_pet">
+						<form method="post" action="/add_care">
 							<div class="card-body">
-								<div class="form-group row">
-									<label for="petname" class="col-sm-3 col-form-label"><b>Pet Name</b></label>
-									<div class="col-sm-9">
-										<input type="text" required="required" class="form-control" id="petname" placeholder="Pet Name.." name="petname" value="">
-									</div>
-								</div>
-								<div class="form-group row">
-  									<label for="gender" class="col-sm-3 col-form-label"><b>Gender</b></label>
-  									<div class="col-sm-9">
-	  									<select class="custom-select" id="gender" name="gender">
-										    <option value="male">Male</option>
-										    <option value="female">Female</option>
-										    <option value="others">Others</option>
-										    <option value="unknown">Unknown</option>
-										</select>
-									</div>
-								</div>
+
 								<div class="form-group row">
   									<label for="species" class="col-sm-3 col-form-label"><b>Species</b></label>
   									<div class="col-sm-9">
@@ -112,13 +98,24 @@
 									</div>
 								</div>
 								<div class="form-group row">
+  									<label for="service" class="col-sm-3 col-form-label"><b>Service Type</b></label>
+  									<div class="col-sm-9">
+	  									<select class="custom-select" id="service" name="service">
+										    <option value="hotel">Hotel</option>
+										    <option value="petsitting">Pet-Sitting</option>
+										    <option value="drop-in visits">Drop-in Visits</option>
+										    <option value="daycare">Daycare</option>
+										</select>
+									</div>
+								</div>
+								<div class="form-group row">
 									<label for="petname" class="col-sm-3 col-form-label"><b>Description</b></label>
 									<div class="col-sm-9">
-										<input type="text" required="required" class="form-control" id="description" placeholder="A Short and Sweet Bio of Your Pet..." name="description" value="">
+										<input type="text" required="required" class="form-control" id="description" placeholder="Description of Service..." name="description" value="">
 									</div>
 								</div>
 							</div>
-							<div class="card-footer small text-muted"><button type="submit" class="btn btn-secondary">Add Pet</button></div>
+							<div class="card-footer small text-muted"><button type="submit" class="btn btn-secondary">Add Service</button></div>
 						</form>
 					</div>
 				</div>

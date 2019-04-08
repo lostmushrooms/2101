@@ -66,14 +66,13 @@ CREATE TABLE Caretakers (
 );
 
 CREATE TABLE Pets (
-	pid INTEGER, --weak unique id of pet
 	oname VARCHAR(50), --username of owner
-	pname VARCHAR(50), --non-unique name of pet
+	pname VARCHAR(50), --weak unique name of pet
 	gender gender_type NOT NULL DEFAULT 'unknown',
 	species species_type NOT NULL DEFAULT 'unknown',
 	weight_class weight_type NOT NULL DEFAULT 'unknown',
 	biography VARCHAR(500), --bio of the pet
-	PRIMARY KEY (pid, oname),
+	PRIMARY KEY (pname, oname),
 	FOREIGN KEY (oname) REFERENCES Owners (username) ON DELETE CASCADE
 );
 	
@@ -81,7 +80,7 @@ CREATE TABLE Chats (
 	oname VARCHAR(50),
 	ctname VARCHAR(50),
 	from_owner BOOL, --True if message was sent by owner, else message was sent by caretaker.
-	time TIMESTAMP,
+	time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 	message TEXT,
 	PRIMARY KEY (oname, ctname, from_owner, time),
 	FOREIGN KEY (oname) REFERENCES Owners (username) ON DELETE CASCADE,
@@ -89,11 +88,11 @@ CREATE TABLE Chats (
 );
 		
 CREATE TABLE Availabilities (
-	id INTEGER UNIQUE NOT NULL,
+	id INTEGER PRIMARY KEY,
 	ctname VARCHAR(50), --username of caretaker who advertised this availability
 	start_date DATE,
 	end_date DATE,
-	PRIMARY KEY (ctname, start_date, end_date),
+	is_opened BOOL NOT NULL DEFAULT True,
 	FOREIGN KEY (ctname) REFERENCES Caretakers(username) ON DELETE CASCADE,
 	CHECK (start_date <= end_date)
 );
@@ -190,31 +189,23 @@ ON Owners
 FOR EACH ROW
 EXECUTE PROCEDURE not_caretaker();
 
---For Bid table, we need ostart_date >= referenced availability's start_date and oend_date <= referenced availability's end_date
-CREATE OR REPLACE FUNCTION valid_bid_date()
+--For Availabilities table, for any particular user, we need to prevent overlapping open availabilities. 
+CREATE OR REPLACE FUNCTION valid_availability()
 RETURNS TRIGGER AS
 $$
 BEGIN 
-	IF (
-		NEW.ostart_date < (SELECT start_date FROM Availabilities A WHERE A.id = new.availabilityId) OR
-		NEW.oend_date > (SELECT end_date FROM Availabilities A WHERE A.id = new.availabilityId)
-		) THEN RETURN NULL;
+	IF EXISTS (
+		SELECT 1
+		FROM Availabilities A
+		WHERE A.ctname = NEW.ctname AND A.start_date <= NEW.end_date AND A.end_date >= NEW.start_date AND A.is_opened = True
+	) THEN RETURN NULL;
 	ELSE RETURN NEW;
 	END IF;
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER valid_bid_date_trig
-BEFORE INSERT OR UPDATE
-ON Bids
-FOR EACH ROW
-EXECUTE PROCEDURE valid_bid_date();
-
-
---A care taker should not have any availabilities, u and v where u.start_date <= v.end_date but u.end_date >= v.start_date. This is an overlap and we will merge these results to create
---another availability which includes both timeframes. We will do this by deleting all previous entries which are in this overlap, and finally adding one entry which goes from
---the minimum of all the start_date until the maximum of all the end_date.
-CREATE OR REPLACE FUNCTION merge_availability()
+--For Bid table, we need ostart_date >= referenced availability's start_date and oend_date <= referenced availability's end_date, and the referenced availability needs to be open.
+CREATE OR REPLACE FUNCTION valid_bid()
 RETURNS TRIGGER AS
 $$
 DECLARE datecursor CURSOR (new_start_date DATE, new_end_date DATE) FOR
@@ -255,10 +246,12 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER merge_trig
-BEFORE INSERT OR UPDATE ON Availabilities
+CREATE TRIGGER valid_bid_trig
+BEFORE INSERT OR UPDATE
+ON Bids
 FOR EACH ROW
-EXECUTE PROCEDURE merge_availability();
+EXECUTE PROCEDURE valid_bid();
+
 
 --Due to covering constraint of the ISA relationship, insertion into Users is handled by js-side logic, whereas 
 --deletion from Owners and Caretakers is handled using the following triggers.
@@ -311,12 +304,12 @@ VALUES
 	('Bob00');
 
 -- Pets
-INSERT INTO Pets(pid, oname, pname, biography) 
+INSERT INTO Pets(oname, pname, biography) 
 VALUES 
-    (1, 'Alice00', 'Prince', 'cute cute'),
-	(2, 'Alice00', 'Princess', 'paw paw'),
-	(1, 'Miaaaaa97', 'Orange', 'ooooooorange'),
-	(2, 'Miaaaaa97', 'Purp', 'purrrrrrrrrp');
+    ('Alice00', 'Prince', 'cute cute'),
+	('Alice00', 'Princess', 'paw paw'),
+	('Miaaaaa97', 'Orange', 'ooooooorange'),
+	('Miaaaaa97', 'Purp', 'purrrrrrrrrp');
 
 -- Availabilities
 INSERT INTO Availabilities (id, ctname, start_date, end_date) 
@@ -326,6 +319,7 @@ VALUES
 	(3, 'Miaaaaa666', to_date('2019-04-19', 'YYYY-MM-DD'), to_date('2019-05-06', 'YYYY-MM-DD')),
 	(4, 'Miaaaaa666', to_date('2019-05-08', 'YYYY-MM-DD'), to_date('2019-06-20', 'YYYY-MM-DD')),
 	(5, 'Miaaaaa666', to_date('2019-07-20', 'YYYY-MM-DD'), to_date('2019-07-31', 'YYYY-MM-DD'));
+
 
 -- Bids
 INSERT INTO Bids (id, availabilityId, oname, ostart_date, oend_date, bidded_price_per_hour)
@@ -341,7 +335,6 @@ VALUES
 	(9, 1, 'Miaaaaa97', to_date('2019-05-01', 'YYYY-MM-DD'), to_date('2019-05-31', 'YYYY-MM-DD'), 20),
 	(10, 1, 'Alice00', to_date('2019-05-01', 'YYYY-MM-DD'), to_date('2019-05-31', 'YYYY-MM-DD'), 25);
 		
---check if merge trigger works
 
 INSERT INTO Availabilities (id, ctname, start_date, end_date) 
 VALUES
@@ -357,3 +350,12 @@ VALUES
 	(2, 1, 1, 'bad service', 'ugly cat'),
 	(3, 5, 5, 'great service', 'cute dog'),
 	(10, 4, 4, 'good service', 'cute cat');
+
+-- Care Offered
+INSERT INTO OfferedCares (ctname, species, weight_class, service, extra_descriptions)
+VALUES
+	('Miaaaaa666', 'cat', 'medium', 'daycare', '...'),
+	('Miaaaaa666', 'dog', 'large', 'daycare', '...'),
+	('Miaaaaa666', 'cat', 'medium', 'petsitting', '...'),
+	('Bob00', 'dog', 'medium', 'daycare', '...'),
+	('Bob00', 'cat', 'small', 'petsitting', '...');
