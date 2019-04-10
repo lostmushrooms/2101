@@ -32,6 +32,7 @@ function initRouter(app) {
 	app.get('/makePayment', passport.authMiddleware(), makePayment);
 	app.get('/makeRating', passport.authMiddleware(), makeRating);
 	app.get('/ctProfile', passport.authMiddleware(), ctProfile);
+	app.get('/ownerCompletedTrans', passport.authMiddleware(), ownerCompletedTrans);
 
 	//ct
 	app.get('/makePost' , passport.authMiddleware(), makePost);
@@ -513,6 +514,28 @@ function trueCompletedTrans(req, res, next) {
 			tbl = data.rows;
 		}
 		basic(req, res, 'trueCompleteTrans', { tbl: tbl, auth: true});
+	});
+}
+
+function ownerCompletedTrans(req, res, next) {
+	if(req.user.userType != "owner") {
+		res.redirect('dashboard');
+	}
+	var tbl;
+	pool.query(sql_query.query.owner_completed_trans, [req.user.username], (err, data) => {
+		var id = null;
+		var row = null;
+
+		if(err || !data.rows || data.rows.length == 0) {
+			tbl = [];
+		} else {
+			row = data.rows[0];
+			if (row) {
+				id = row.id;
+			}
+			tbl = data.rows;
+		}
+		basic(req, res, 'ownerCompleteTrans', { tbl: tbl, auth: true});
 	});
 }
 
