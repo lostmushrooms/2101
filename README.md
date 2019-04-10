@@ -20,3 +20,6 @@ Setting up:
 6. Run `npm start` in your root directory. 
 
 7. Open localhost:3000 with your default browser. You should see the index page.
+
+8. If there are code corruption, please download the latest copy of code at https://github.com/lostmushrooms/2102.
+
