@@ -19,7 +19,7 @@ function check(event) {
 		event.stopPropagation();
 		return false;
 	}
-	if(start >= end) {
+	if(start > end) {
 		alert("Start date should be earlier then end date");
 		event.preventDefault();
 		event.stopPropagation();

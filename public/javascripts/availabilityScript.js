@@ -2,7 +2,6 @@ function check(event) {
 	// Get Values
 	var start  = $('#datetimepicker6').data("DateTimePicker").date();
 	var end  = $('#datetimepicker7').data("DateTimePicker").date();
-	console.log(start);
 	
 	// Simple Check
 	if(!start) {
@@ -17,7 +16,7 @@ function check(event) {
 		event.stopPropagation();
 		return false;
 	}
-	if(start >= end) {
+	if(start > end) {
 		alert("You must select a valid date range");
 		event.preventDefault();
 		event.stopPropagation();
