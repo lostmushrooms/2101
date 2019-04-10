@@ -1,9 +1,11 @@
 function check(event) {
 	// Get Values
-	var start  = $('#datetimepicker6').data("DateTimePicker").date();
-	var end  = $('#datetimepicker7').data("DateTimePicker").date();
-	var ctstart  = new Date(document.getElementById('ctstart'));
-	var ctend  = new Date(document.getElementById('ctend'));
+	var start  = $('#datetimepicker6').data("DateTimePicker").date().toDate().setHours(0,0,0);
+	start = Math.floor(start/1000)*1000;
+	var end  = $('#datetimepicker7').data("DateTimePicker").date().toDate().setHours(0,0,0);
+	end = Math.floor(end/1000)*1000;
+	var ctstart  = new Date(document.getElementById('ctstart').value);
+	var ctend  = new Date(document.getElementById('ctend').value);
 	var price   = document.getElementById('price').value;
 	
 	// Simple Check
