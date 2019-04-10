@@ -27,7 +27,8 @@ sql.query = {
 	owner_pets: 'SELECT pname, gender, species, weight_class FROM Pets where oname=$1',
 	ct_care: 'SELECT * FROM OfferedCares WHERE ctname=$1',
 	ct_comments: 'SELECT Bids.oname as oname, Bids.oend_date as date, AcceptedBids.orating as rating, AcceptedBids.ocomments as comment FROM Bids inner join AcceptedBids on Bids.id = AcceptedBids.id inner join Availabilities on Bids.availabilityId = Availabilities.id WHERE Availabilities.ctname=$1',
-
+	owner_completed_trans: 'SELECT Availabilities.ctname as ctname, Bids.ostart_date as start, Bids.oend_date as end, AcceptedBids.orating as rating, AcceptedBids.ctcomments as review FROM Availabilities inner join Bids on Availabilities.id = Bids.availabilityId inner join AcceptedBids on Bids.id = AcceptedBids.id WHERE Bids.oname = $1',
+	
 	// Chat
 	send_message: 'INSERT INTO Chats (oname, ctname, from_owner, message) VALUES ($1,$2,$3,$4)',
 	read_message_owner:'SELECT ctname as from, message as message, time as date FROM Chats WHERE oname=$1 AND from_owner=false',
