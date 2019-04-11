@@ -105,7 +105,6 @@ CREATE TABLE OfferedCares (
 	species species_type NOT NULL,
 	weight_class weight_type NOT NULL,
 	service service_type NOT NULL,
-	extra_descriptions VARCHAR(500),
 	FOREIGN KEY (ctname) REFERENCES Caretakers(username) ON DELETE CASCADE,
 	PRIMARY KEY (ctname, species, weight_class, service)
 );
