@@ -105,6 +105,7 @@ CREATE TABLE OfferedCares (
 	species species_type NOT NULL,
 	weight_class weight_type NOT NULL,
 	service service_type NOT NULL,
+	extra_descriptions VARCHAR(500),
 	FOREIGN KEY (ctname) REFERENCES Caretakers(username) ON DELETE CASCADE,
 	PRIMARY KEY (ctname, species, weight_class, service)
 );
@@ -117,7 +118,6 @@ CREATE TABLE Bids (
 	ostart_date DATE, --check that this start date is after the Availability's start date
 	oend_date DATE, --check that this end date if before the Availability's end date
 	bidded_price_per_hour NUMERIC(10,2),
-	extra_descriptions VARCHAR(500),
 	FOREIGN KEY (availabilityId) REFERENCES Availabilities(id) ON DELETE CASCADE,
 	FOREIGN KEY (oname) REFERENCES Owners(username) ON DELETE CASCADE,
 	CHECK (ostart_date <= oend_date),
