@@ -141,7 +141,7 @@ CREATE TABLE Payments (
 	payment_id INTEGER NOT NULL,
 	id INTEGER, --id of accepted bid
 	value DECIMAL(12,2), --value of payment (positive if from Owner to Caretaker)
-	FOREIGN KEY (id) REFERENCES Bids(id) ON DELETE CASCADE,
+	FOREIGN KEY (id) REFERENCES AcceptedBids(id) ON DELETE CASCADE,
 	PRIMARY KEY (payment_id, id)
 );
 
